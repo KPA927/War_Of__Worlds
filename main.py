@@ -2,7 +2,6 @@ from random import randrange as rnd, choice
 import tkinter as tk
 import math
 import time
-import Gravitation as grav
 import socket
 import pickle
 
@@ -24,7 +23,13 @@ class Planet:
         self.owner = ow
         self.radc = 15
         self.highliting = 0
-        self.id = canv.create_oval(
+        if self.owner == 1:
+            self.color = 'blue'
+        elif self.owner == 2:
+            self.color = 'red'
+        else:
+            self.color = 'grey'
+        canv.create_oval(
             self.x - self.radc * self.lvl,
             self.y - self.radc * self.lvl,
             self.x + self.radc * self.lvl,
@@ -35,3 +40,13 @@ class Planet:
     def first_click(self, event):
         if ((event.x - self.x)**2 + (event.y - self.y)**2) <= (self.radc * self.lvl)**2:
             self.highliting = 1
+            canv.create_oval(
+                self.x - self.radc * self.lvl - 5,
+                self.y - self.radc * self.lvl - 5,
+                self.x + self.radc * self.lvl + 5,
+                self.y + self.radc * self.lvl + 5,
+                weight = 3)
+
+
+p1 = Planet(1, 400, 400, 1, 1)
+root.mainloop()
