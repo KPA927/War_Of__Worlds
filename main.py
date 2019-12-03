@@ -1,5 +1,4 @@
 from random import randrange as rnd, choice
-import threading
 import tkinter as tk
 import math
 import time
