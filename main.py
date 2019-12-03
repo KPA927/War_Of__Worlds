@@ -11,6 +11,9 @@ root.geometry('1920x1080')
 canvas = tk.Canvas(root, bg='black')
 canvas.focus_set()
 canvas.pack(fill=tk.BOTH, expand=1)
+lines = []
+planets = []
+
 
 
 class Planet:
@@ -27,10 +30,10 @@ class Planet:
         self.y = y
         self.level = lvl
         self.owner = owner
-        self.radc = 15
-        self.r = self.level * self.radc
+        self.r = lvl * 7 + 10
         self.highlighting = 0
-        self.font = "Times " + str(12 * self.level)
+        self.font = "Times " + str(int(12 * math.sqrt(self.level)))
+        self.growing = 0
         if self.owner == 1:
             self.color = 'blue'
             self.mass_limit = self.level * 100
@@ -41,9 +44,7 @@ class Planet:
             self.mass_grow = self.level * 5
         else:
             self.color = 'grey'
-            self.mass_limit = self.level * 50
-            self.mass_grow = self.level * 2
-        canvas.create_oval(
+        self.id = canvas.create_oval(
             self.x - self.r,
             self.y - self.r,
             self.x + self.r,
@@ -51,30 +52,56 @@ class Planet:
             fill=self.color,
             outline='grey'
         )
-        self.text = canvas.create_text(self.x, self.y, text=self.mass, fill='white', font=self.font)
+        self.text = canvas.create_text(self.x, self.y, text=int(self.mass), fill='white', font=self.font)
 
     def first_click(self):
         self.highlighting = 1
         self.id = canvas.create_oval(
-            self.x - self.radc * self.level - 5,
-            self.y - self.radc * self.level - 5,
-            self.x + self.radc * self.level + 5,
-            self.y + self.radc * self.level + 5,
+            self.x - self.r - 5,
+            self.y - self.r - 5,
+            self.x + self.r + 5,
+            self.y + self.r + 5,
             width=3,
             outline='grey'
         )
-        print('first_click')
 
     def second_click(self, other):
-        pass
+
+        if self != other:
+            l = UnitsLine(self.x, self.y, other.x, other.y, self.color, self.mass)
+            lines.append(l)
+        else:
+            if (self.mass >= self.level * 21) and (self.level < 4):
+                self.growing = 7
+                self.level += 1
 
     def grow(self):
-        if self.mass < self.mass_limit:
-            self.mass += self.mass_grow
-            if self.mass > self.mass_limit:
-                self.mass = self.mass_limit
-        time.sleep(1)
-        root.after(1, self.grow)
+        if self.growing > 0:
+            self.r += 1
+            self.mass -= 3 * (self.level - 1)
+            canvas.delete(self.id)
+            self.id = canvas.create_oval(
+                self.x - self.r,
+                self.y - self.r,
+                self.x + self.r,
+                self.y + self.r,
+                fill=self.color,
+                outline='grey'
+            )
+            canvas.delete(self.text)
+            self.text = canvas.create_text(self.x, self.y, text=int(self.mass), fill='white', font=self.font)
+            self.growing -= 1
+        else:
+            self.font = "Times " + str(int(12 * math.sqrt(self.level)))
+            canvas.delete(self.text)
+            self.text = canvas.create_text(self.x, self.y, text=int(self.mass), fill='white', font=self.font)
+
+    def massupdate(self):
+        if self.mass < 25 * (2 ** self.level):
+            self.mass += self.level/10
+            canvas.delete(self.text)
+            self.text = canvas.create_text(self.x, self.y, text=int(self.mass), fill='white', font=self.font)
+            
 
 class Line:
     def __init__(self,
@@ -162,27 +189,39 @@ def click(event):
         if i.highlighting == 1:
             sec_click = 1
             break
-    print(i.level)
+            
+   
     if sec_click == 1:
         for j in planets:
-            if ((event.x - j.x) ** 2 + (event.y - j.y) ** 2) <= (j.radc * j.level) ** 2:
+            if ((event.x - j.x) ** 2 + (event.y - j.y) ** 2) <= (j.r) ** 2:
                 i.second_click(j)
                 break
         i.highlighting = 0
         canvas.delete(i.id)
     else:
         for j in planets:
-            if ((event.x - j.x) ** 2 + (event.y - j.y) ** 2) <= (j.radc * j.level) ** 2:
+            if ((event.x - j.x) ** 2 + (event.y - j.y) ** 2) <= (j.r) ** 2:
                 j.first_click()
 
 
-#def main():
- #   for i in planets:
-  #      i.grow()
+def update():
+    for i in lines:
+        i.linemove()
+    for i in planets:
+        i.grow()
+        i.massupdate()
+    root.after(100, update)
 
-p1 = Planet(20, 400, 400, 0, 1)
-p2 = Planet(20, 500, 500, 1, 2)
-planets = [p1, p2]
-canvas.bind('<Button-1>', click)
-#main()
+
+def main():
+    global planets
+    p1 = Planet(20, 400, 400, 0, 1)
+    p2 = Planet(30, 500, 500, 2, 2)
+    planets = [p1, p2]
+    canvas.bind('<Button-1>', click)
+    update()
+
+
+main()
+
 root.mainloop()
