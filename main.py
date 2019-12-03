@@ -1,5 +1,4 @@
 from random import randrange as rnd, choice
-import threading
 import tkinter as tk
 import math
 import time
@@ -29,10 +28,9 @@ class Planet:
         self.y = y
         self.level = lvl
         self.owner = owner
-        self.radc = 15
-        self.r = lvl * self.radc
+        self.r = lvl * 7 + 10
         self.highlighting = 0
-        self.font = "Times " + str(12 * self.level)
+        self.font = "Times " + str(int(12 * math.sqrt(self.level)))
         self.growing = 0
         if self.owner == 1:
             self.color = 'blue'
@@ -49,7 +47,7 @@ class Planet:
             fill=self.color,
             outline='grey'
         )
-        self.text = canvas.create_text(self.x, self.y, text=self.mass, fill='white', font=self.font)
+        self.text = canvas.create_text(self.x, self.y, text=int(self.mass), fill='white', font=self.font)
 
     def first_click(self):
         self.highlighting = 1
@@ -61,7 +59,6 @@ class Planet:
             width=3,
             outline='grey'
         )
-        print('first_click')
 
     def second_click(self, other):
         if self != other:
@@ -86,13 +83,18 @@ class Planet:
                 outline='grey'
             )
             canvas.delete(self.text)
-            self.text = canvas.create_text(self.x, self.y, text=self.mass, fill='white', font=self.font)
+            self.text = canvas.create_text(self.x, self.y, text=int(self.mass), fill='white', font=self.font)
             self.growing -= 1
-            print(self.level)
         else:
-            self.font = "Times " + str(int(15 * math.sqrt(self.level)))
+            self.font = "Times " + str(int(12 * math.sqrt(self.level)))
             canvas.delete(self.text)
-            self.text = canvas.create_text(self.x, self.y, text=self.mass, fill='white', font=self.font)
+            self.text = canvas.create_text(self.x, self.y, text=int(self.mass), fill='white', font=self.font)
+
+    def massupdate(self):
+        if self.mass < 25 * (2 ** self.level):
+            self.mass += self.level/10
+            canvas.delete(self.text)
+            self.text = canvas.create_text(self.x, self.y, text=int(self.mass), fill='white', font=self.font)
 
 
 class UnitsLine:
@@ -230,14 +232,14 @@ def click(event):
    
     if sec_click == 1:
         for j in planets:
-            if ((event.x - j.x) ** 2 + (event.y - j.y) ** 2) <= (j.radc * j.level) ** 2:
+            if ((event.x - j.x) ** 2 + (event.y - j.y) ** 2) <= (j.r) ** 2:
                 i.second_click(j)
                 break
         i.highlighting = 0
         canvas.delete(i.id)
     else:
         for j in planets:
-            if ((event.x - j.x) ** 2 + (event.y - j.y) ** 2) <= (j.radc * j.level) ** 2:
+            if ((event.x - j.x) ** 2 + (event.y - j.y) ** 2) <= (j.r) ** 2:
                 j.first_click()
 
 
@@ -246,13 +248,14 @@ def update():
         i.linemove()
     for i in planets:
         i.grow()
-    root.after(50, update)
+        i.massupdate()
+    root.after(100, update)
 
 
 def main():
     global planets
     p1 = Planet(20, 400, 400, 0, 1)
-    p2 = Planet(500, 500, 500, 1, 2)
+    p2 = Planet(30, 500, 500, 2, 2)
     planets = [p1, p2]
     canvas.bind('<Button-1>', click)
     update()
