@@ -16,6 +16,7 @@ lines = []
 planets = []
 
 
+
 class Planet:
     def __init__(self,
                  mass,
@@ -40,6 +41,7 @@ class Planet:
         else:
             self.color = 'grey'
         self.id = canvas.create_oval(
+
             self.x - self.r,
             self.y - self.r,
             self.x + self.r,
@@ -145,7 +147,77 @@ class UnitsLine:
             self.y + self.r,
             fill=self.color,
         )'''
+       
 
+    def move(self, other):
+        delta_x = self.x - other.x
+        delta_y = -(self.y - other.y)
+        angle = math.atan2(delta_x, delta_y)
+        mass = self.mass
+        for i in range(mass):
+            self.mass -= 1
+            canvas.itemconfig(self.text, text = self.mass)
+            unit = Unit(self.x + self.r * math.cos(angle),
+                        self.y -self.r * math.sin(angle),
+                        self.color,
+                        angle,
+                        )
+            unit.move(other)
+
+    def grow(self):
+        pass
+
+
+class Unit:
+    def __init__(self,
+                 x,
+                 y,
+                 clr,
+                 angle,
+                 ):
+        self.r = 5
+        self.x = x + self.r * math.cos(angle)
+        self.y = y
+        print(self.x, x)
+        self.color = clr
+        self.angle = angle
+        self.velocity = 5
+
+        self.time = 2*self.r/self.velocity
+        self.id = canvas.create_oval(
+            self.x - self.r,
+            self.y - self.r,
+            self.x + self.r,
+            self.y + self.r,
+            fill=self.color,
+        )
+
+    def move(self, other):
+            self.x += self.velocity * math.cos(self.angle)
+            self.y -= self.velocity * math.sin(self.angle)
+            dr = ((self.x - other.x) ** 2 + (self.y - other.y) ** 2) ** 0.5
+            print(dr)
+            if dr <= other.r:
+                canvas.delete(self.id)
+                canvas.update()
+                other.mass += 1
+                print('End')
+                canvas.itemconfig(other.text, text=other.mass)
+            else:
+                self.set_coords()
+                canvas.update()
+                time.sleep(0.1)
+                root.after(1, self.move(other))
+
+    def set_coords(self):
+        canvas.delete(self.id)
+        self.id = canvas.create_oval(
+            self.x - self.r,
+            self.y - self.r,
+            self.x + self.r,
+            self.y + self.r,
+            fill=self.color,
+        )
 
 def click(event):
     sec_click = 0
@@ -154,6 +226,8 @@ def click(event):
         if i.highlighting == 1:
             sec_click = 1
             break
+            
+   
     if sec_click == 1:
         for j in planets:
             if ((event.x - j.x) ** 2 + (event.y - j.y) ** 2) <= (j.radc * j.level) ** 2:
