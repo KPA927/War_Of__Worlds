@@ -54,10 +54,9 @@ class Planet:
             else:
                 self.color = _from_rgb((128, 128, 128))
         if self.owner == 1:
-
-            self.mass_limit =  25 * (2 ** self.level)
+            self.mass_limit = 25 * (2 ** self.level)
         elif self.owner == 2:
-            self.mass_limit =  25 * (2 ** self.level)
+            self.mass_limit = 25 * (2 ** self.level)
         self.id = canvas.create_oval(
             self.x - self.r,
             self.y - self.r,
@@ -86,7 +85,7 @@ class Planet:
             mass = self.mass
             color = self.color
             print(start, end)
-            l = Line(self, other, start, end, mass, color)
+            l = Line(self, other, start, mass, color)
             lines.append(l)
         else:
             if (self.mass >= self.level * 21) and (self.level < 4):
@@ -121,6 +120,7 @@ class Planet:
             self.text = canvas.create_text(self.x, self.y, text=int(self.mass), fill='white', font=self.font)
 
     def redraw(self):
+        self.r = self.level * 7 + 10
         canvas.delete(self.id)
         self.id = canvas.create_oval(
             self.x - self.r,
@@ -155,7 +155,6 @@ class Line:
                  p1,
                  p2,
                  start,
-                 end,
                  mass,
                  color
     ):
@@ -170,9 +169,8 @@ class Line:
         self.end = 0
         self.planet1 = p1
         self.planet2 = p2
-        self.color =color
+        self.color = color
         self.o_start = start
-        self.o_end = end
         self.Num = mass
         self.max = 0
         self.count1 = 0
@@ -245,7 +243,7 @@ class Line:
     def update_mass(self):
         if self.begin == 1 and self.end == 1:
             self.planet1.mass -= 0.1
-            if self.o_start == self.o_end:
+            if self.o_start == self.planet2.owner:
                 self.planet2.mass += 0.1
             else:
                 self.planet2.mass -= 0.1
@@ -254,7 +252,7 @@ class Line:
         elif self.begin == 1:
             self.planet1.mass -= 0.1
         elif self.end == 1:
-            if self.o_start == self.o_end:
+            if self.o_start == self.planet2.owner:
                 self.planet2.mass += 0.1
             else:
                 self.planet2.mass -= 0.1
@@ -264,7 +262,7 @@ class Line:
     def capture(self):
         self.planet2.color = self.color
         self.planet2.owner = self.o_start
-        self.o_end = self.o_start
+        self.planet2.level = 1
         self.planet2.redraw()
 
     def stop(self):
@@ -367,10 +365,12 @@ def update():
 
 def main():
     global planets
-    p1 = Planet(20, 400, 400, 1, 2)
-    p2 = Planet(100, 500, 500, 1, 2)
-    p3 = Planet(200, 400, 300, 1, 1)
-    planets = [p1, p2, p3]
+    p1 = Planet(50, 400, 400, 2, 2)
+    p2 = Planet(20, 500, 400, 0, 2)
+    p3 = Planet(20, 600, 400, 1, 2)
+    p4 = Planet(20, 500, 500, 0, 2)
+    p5 = Planet(20, 500, 300, 0, 2)
+    planets = [p1, p2, p3, p4, p5]
     canvas.bind('<Button-1>', click)
     update()
 
