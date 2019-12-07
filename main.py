@@ -16,6 +16,10 @@ planets = []
 counter = 0
 
 
+def _from_rgb(rgb):
+    return "#%02x%02x%02x" % rgb
+
+
 class Planet:
     def __init__(self,
                  mass,
@@ -34,16 +38,24 @@ class Planet:
         self.highlighting = 0
         self.font = "Times " + str(int(12 * math.sqrt(self.level)))
         self.growing = 0
-        if self.owner == 1:
-            self.color = 'blue'
-            self.mass_limit = self.level * 100
-            self.mass_grow = self.level * 5
-        elif self.owner == 2:
-            self.color = 'red'
-            self.mass_limit = self.level * 100
-            self.mass_grow = self.level * 5
+        if self.mass <= 235:
+            if self.owner == 1:
+                self.color = _from_rgb((52, 235 - int(self.mass), 235))
+            elif self.owner == 2:
+                self.color = _from_rgb((235, 235 - int(self.mass), 52))
+            else:
+                self.color = _from_rgb((128, 128, 128))
         else:
-            self.color = 'grey'
+            if self.owner == 1:
+                self.color = _from_rgb((52, 0, 235))
+            elif self.owner == 2:
+                self.color = _from_rgb((235, 0, 52))
+            else:
+                self.color = _from_rgb((128, 128, 128))
+        if self.owner == 1:
+            self.mass_limit =  25 * (2 ** self.level)
+        elif self.owner == 2:
+            self.mass_limit =  25 * (2 ** self.level)
         self.id = canvas.create_oval(
             self.x - self.r,
             self.y - self.r,
@@ -56,7 +68,7 @@ class Planet:
 
     def first_click(self):
         self.highlighting = 1
-        self.id = canvas.create_oval(
+        self.id1 = canvas.create_oval(
             self.x - self.r - 5,
             self.y - self.r - 5,
             self.x + self.r + 5,
@@ -111,6 +123,24 @@ class Planet:
             fill=self.color,
             outline='grey'
         )
+        self.text = canvas.create_text(self.x, self.y, text=int(self.mass), fill='white', font=self.font)
+
+    def colorupdate(self):
+        if self.mass <= 235:
+            if self.owner == 1:
+                self.color = _from_rgb((52, 235 - int(self.mass), 235))
+            elif self.owner == 2:
+                self.color = _from_rgb((235, 235 - int(self.mass), 52))
+            else:
+                self.color = _from_rgb((128, 128, 128))
+        else:
+            if self.owner == 1:
+                self.color = _from_rgb((52, 0, 235))
+            elif self.owner == 2:
+                self.color = _from_rgb((235, 0, 52))
+            else:
+                self.color = _from_rgb((128, 128, 128))
+        self.redraw()
 
 
 class Line:
@@ -237,7 +267,7 @@ def click(event):
                     break
                 allow = 1
         i.highlighting = 0
-        canvas.delete(i.id)
+        canvas.delete(i.id1)
     else:
         for j in planets:
             if (((event.x - j.x) ** 2 + (event.y - j.y) ** 2) <= (j.r) ** 2) and (j.owner == 1):
@@ -300,6 +330,8 @@ def update():
     for j in planets:
         j.grow()
         j.massupdate()
+        if counter % 50 == 0:
+            j.colorupdate()
     counter += 1
     root.after(10, update)
 
@@ -307,8 +339,8 @@ def update():
 def main():
     global planets
     p1 = Planet(20, 400, 400, 1, 2)
-    p2 = Planet(21, 500, 500, 2, 2)
-    p3 = Planet(50, 400, 300, 2, 1)
+    p2 = Planet(100, 500, 500, 1, 2)
+    p3 = Planet(200, 400, 300, 1, 1)
     planets = [p1, p2, p3]
     canvas.bind('<Button-1>', click)
     update()
