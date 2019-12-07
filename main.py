@@ -73,7 +73,6 @@ class Planet:
             print(start, end)
             l = Line(self, other, start, end, mass, color)
             lines.append(l)
-            targets.append([self, other])
         else:
             if (self.mass >= self.level * 21) and (self.level < 4):
                 self.growing = 7
