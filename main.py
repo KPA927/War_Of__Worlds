@@ -54,19 +54,10 @@ class Planet:
             else:
                 self.color = _from_rgb((128, 128, 128))
         if self.owner == 1:
-<<<<<<< HEAD
-            self.color = 'blue'
-            self.mass_limit = self.level * 100
-        elif self.owner == 2:
-            self.color = 'red'
-            self.mass_limit = self.level * 100
-        else:
-            self.color = 'grey'
-=======
+
             self.mass_limit =  25 * (2 ** self.level)
         elif self.owner == 2:
             self.mass_limit =  25 * (2 ** self.level)
->>>>>>> master
         self.id = canvas.create_oval(
             self.x - self.r,
             self.y - self.r,
