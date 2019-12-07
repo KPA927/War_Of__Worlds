@@ -13,6 +13,7 @@ canvas.focus_set()
 canvas.pack(fill=tk.BOTH, expand=1)
 lines = []
 planets = []
+targets = []
 
 
 class Planet:
@@ -27,6 +28,7 @@ class Planet:
         self.mass_grow = 0
         self.x = x
         self.y = y
+        self.id1 = 0
         self.level = lvl
         self.owner = owner
         self.r = lvl * 7 + 10
@@ -66,8 +68,14 @@ class Planet:
 
     def second_click(self, other):
         if self != other:
-            l = Line(self, other)
+            start = self.owner
+            end = other.owner
+            mass = self.mass
+            color = self.color
+            print(start, end)
+            l = Line(self, other, start, end, mass, color)
             lines.append(l)
+            targets.append([self, other])
         else:
             if (self.mass >= self.level * 21) and (self.level < 4):
                 self.growing = 7
@@ -115,11 +123,14 @@ class Planet:
 class Line:
     def __init__(self,
                  p1,
-                 p2
+                 p2,
+                 start,
+                 end,
+                 mass,
+                 color
     ):
         self.color = p1.color
         self.an = math.atan2((p2.y - p1.y), (p2.x - p1.x))
-        print(self.an)
         self.x1 = p1.x + p1.r * math.cos(self.an)
         self.y1 = p1.y + p1.r * math.sin(self.an)
         self.x2 = p2.x - p2.r * math.cos(self.an)
@@ -129,7 +140,10 @@ class Line:
         self.end = 0
         self.planet1 = p1
         self.planet2 = p2
-        self.Num = p1.mass
+        self.color =color
+        self.o_start = start
+        self.o_end = end
+        self.Num = mass
         self.max = 0
         self.count1 = 0
         self.count2 = 0
@@ -164,17 +178,31 @@ class Line:
         return x, y
 
     def grow(self):
-        if self.count1 < self.max:
-            self.count1 += 0.1
-        elif (self.count1 >= self.max) and (self.count1 < self.Num):
-            self.count1 += 0.1
-            self.end = 1
-        elif self.count2 < self.max:
-            self.count2 += 0.1
-            self.begin = 0
-        else:
-            self.stop()
-            self.end = 0
+        if self.Num <= self.max:
+            if self.count1 < self.Num:
+                self.count1 += 0.1
+            elif (self.count1 >= self.Num) and (self.count1 < self.max):
+                self.begin = 0
+                self.count1 += 0.1
+                self.count2 += 0.1
+            elif (self.count1 >= self.max) and (self.count2 <= self.max):
+                self.end = 1
+                self.count2 += 0.1
+            else:
+                self.stop()
+
+        if self.Num > self.max:
+            if self.count1 < self.max:
+                self.count1 += 0.1
+            elif self.count1 < self.Num:
+                self.count1 += 0.1
+                self.end = 1
+            elif self.count2 < self.max:
+                self.count2 += 0.1
+                self.begin = 0
+            else:
+                self.stop()
+
         self.update_mass()
 
     def redraw(self):
@@ -187,30 +215,33 @@ class Line:
     def update_mass(self):
         if self.begin == 1 and self.end == 1:
             self.planet1.mass -= 0.1
-            if self.planet2.owner == self.planet1.owner:
+            if self.o_start == self.o_end:
                 self.planet2.mass += 0.1
             else:
                 self.planet2.mass -= 0.1
-                if self.planet2.mass < 0:
+                if self.planet2.mass <= 0:
                     self.capture()
         elif self.begin == 1:
             self.planet1.mass -= 0.1
         elif self.end == 1:
-            if self.planet2.owner == self.planet1.owner:
+            if self.o_start == self.o_end:
                 self.planet2.mass += 0.1
             else:
                 self.planet2.mass -= 0.1
-                if self.planet2.mass < 0:
+                if self.planet2.mass <= 0:
                     self.capture()
 
     def capture(self):
-        self.planet2.color = self.planet1.color
-        self.planet2.owner = self.planet1.owner
-        self.planet2.lvl = 1
+        self.planet2.color = self.color
+        self.planet2.owner = self.o_start
+        self.o_end = self.o_start
         self.planet2.redraw()
 
     def stop(self):
         canvas.delete(self.id)
+        self.begin = 0
+        self.end = 0
+        lines.remove(self)
 
 
 def click(event):
@@ -246,9 +277,9 @@ def update():
 
 def main():
     global planets
-    p1 = Planet(20, 400, 400, 1, 2)
-    p2 = Planet(20, 500, 500, 0, 2)
-    p3 = Planet(20, 600, 200, 2, 2)
+    p1 = Planet(50, 400, 400, 1, 2)
+    p2 = Planet(20, 500, 500, 0, 1)
+    p3 = Planet(50, 600, 200, 2, 1)
     planets = [p1, p2, p3]
     canvas.bind('<Button-1>', click)
     update()
