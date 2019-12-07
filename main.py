@@ -13,6 +13,7 @@ canvas.focus_set()
 canvas.pack(fill=tk.BOTH, expand=1)
 lines = []
 planets = []
+counter = 0
 
 
 class Planet:
@@ -75,8 +76,8 @@ class Planet:
 
     def grow(self):
         if self.growing > 0:
-            self.r += 1
-            self.mass -= 3 * (self.level - 1)
+            self.r += 0.1
+            self.mass -= 0.3 * (self.level - 1)
             canvas.delete(self.id)
             self.id = canvas.create_oval(
                 self.x - self.r,
@@ -88,7 +89,7 @@ class Planet:
             )
             canvas.delete(self.text)
             self.text = canvas.create_text(self.x, self.y, text=int(self.mass), fill='white', font=self.font)
-            self.growing -= 1
+            self.growing -= 0.1
         else:
             self.font = "Times " + str(int(12 * math.sqrt(self.level)))
             canvas.delete(self.text)
@@ -211,11 +212,13 @@ class Line:
 
     def stop(self):
         canvas.delete(self.id)
+        lines.remove(self)
 
 
 def click(event):
     sec_click = 0
     i = 0
+    allow = 1
     for i in planets:
         if i.highlighting == 1:
             sec_click = 1
@@ -224,31 +227,89 @@ def click(event):
     if sec_click == 1:
         for j in planets:
             if ((event.x - j.x) ** 2 + (event.y - j.y) ** 2) <= (j.r) ** 2:
-                i.second_click(j)
-                break
+                for k in lines:
+                    if k.planet1 == i and k.planet2 == j:
+                        allow = 0
+                if i.mass <= 0:
+                    allow = 0
+                if allow == 1:
+                    i.second_click(j)
+                    break
+                allow = 1
         i.highlighting = 0
         canvas.delete(i.id)
     else:
         for j in planets:
-            if ((event.x - j.x) ** 2 + (event.y - j.y) ** 2) <= (j.r) ** 2:
+            if (((event.x - j.x) ** 2 + (event.y - j.y) ** 2) <= (j.r) ** 2) and (j.owner == 1):
                 j.first_click()
 
 
+def II():
+    global planets
+    my_planets = []
+    other_planets = []
+    allow = 1
+    target = 0
+    length = 5000
+    exit = 0
+    attak_potensial = 0
+    for i in planets:
+        if i.owner == 2:
+            if i.mass == 25 * (2 ** i.level):
+                i.second_click(i)
+            else:
+                my_planets.append(i)
+        else:
+            other_planets.append(i)
+    if len(my_planets) != 0 and len(other_planets) != 0:
+        for i in my_planets:
+            attak_potensial += i.mass
+        while exit <= len(other_planets):
+            for i in my_planets:
+                for j in other_planets:
+                    if (i.x - j.x) ** 2 + (i.y - j.y) ** 2 <= length ** 2:
+                        length = ((i.x - j.x) ** 2 + (i.y - j.y) ** 2) ** 0.5
+                        target1 = j
+            if target1.mass < attak_potensial:
+                target = target1
+                break
+            else:
+                other_planets.remove(target1)
+                exit += 1
+            length = 5000
+        if target != 0:
+            for i in my_planets:
+                for k in lines:
+                    if k.planet1 == i and k.planet2 == target:
+                        allow = 0
+                if i.mass <= 0:
+                    allow = 0
+                if allow == 1:
+                    i.second_click(target)
+                allow = 1
+
+
 def update():
+    global counter
+    if counter >= 500:
+        counter = 0
+        II()
     for i in lines:
         i.grow()
         i.redraw()
     for j in planets:
         j.grow()
         j.massupdate()
+    counter += 1
     root.after(10, update)
 
 
 def main():
     global planets
     p1 = Planet(20, 400, 400, 1, 2)
-    p2 = Planet(20, 500, 500, 2, 2)
-    planets = [p1, p2]
+    p2 = Planet(21, 500, 500, 2, 2)
+    p3 = Planet(50, 400, 300, 2, 1)
+    planets = [p1, p2, p3]
     canvas.bind('<Button-1>', click)
     update()
 
