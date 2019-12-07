@@ -96,7 +96,7 @@ class Planet:
 
     def massupdate(self):
         if self.mass < 25 * (2 ** self.level):
-            self.mass += self.level/10
+            self.mass += self.level/100
             canvas.delete(self.text)
             self.text = canvas.create_text(self.x, self.y, text=int(self.mass), fill='white', font=self.font)
 
@@ -165,12 +165,12 @@ class Line:
 
     def grow(self):
         if self.count1 < self.max:
-            self.count1 += 1
+            self.count1 += 0.1
         elif (self.count1 >= self.max) and (self.count1 < self.Num):
-            self.count1 += 1
+            self.count1 += 0.1
             self.end = 1
         elif self.count2 < self.max:
-            self.count2 += 1
+            self.count2 += 0.1
             self.begin = 0
         else:
             self.stop()
@@ -186,20 +186,20 @@ class Line:
 
     def update_mass(self):
         if self.begin == 1 and self.end == 1:
-            self.planet1.mass -= 1
+            self.planet1.mass -= 0.1
             if self.planet2.owner == self.planet1.owner:
-                self.planet2.mass += 1
+                self.planet2.mass += 0.1
             else:
-                self.planet2.mass -= 1
+                self.planet2.mass -= 0.1
                 if self.planet2.mass < 0:
                     self.capture()
         elif self.begin == 1:
-            self.planet1.mass -= 1
+            self.planet1.mass -= 0.1
         elif self.end == 1:
             if self.planet2.owner == self.planet1.owner:
-                self.planet2.mass += 1
+                self.planet2.mass += 0.1
             else:
-                self.planet2.mass -= 1
+                self.planet2.mass -= 0.1
                 if self.planet2.mass < 0:
                     self.capture()
 
@@ -241,7 +241,7 @@ def update():
     for j in planets:
         j.grow()
         j.massupdate()
-    root.after(100, update)
+    root.after(10, update)
 
 
 def main():
