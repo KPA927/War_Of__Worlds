@@ -247,8 +247,9 @@ def update():
 def main():
     global planets
     p1 = Planet(20, 400, 400, 1, 2)
-    p2 = Planet(20, 500, 500, 2, 2)
-    planets = [p1, p2]
+    p2 = Planet(20, 500, 500, 0, 2)
+    p3 = Planet(20, 600, 200, 2, 2)
+    planets = [p1, p2, p3]
     canvas.bind('<Button-1>', click)
     update()
 
