@@ -25,7 +25,6 @@ class Planet:
                  lvl):
         self.mass = mass
         self.mass_limit = 0
-        self.mass_grow = 0
         self.x = x
         self.y = y
         self.id1 = 0
@@ -38,11 +37,9 @@ class Planet:
         if self.owner == 1:
             self.color = 'blue'
             self.mass_limit = self.level * 100
-            self.mass_grow = self.level * 5
         elif self.owner == 2:
             self.color = 'red'
             self.mass_limit = self.level * 100
-            self.mass_grow = self.level * 5
         else:
             self.color = 'grey'
         self.id = canvas.create_oval(
