@@ -1,6 +1,7 @@
 from random import randrange as rnd, choice
 import tkinter as tk
 import math
+#from input_map import read_space_objects_data_from_file as read
 import time
 import socket
 import pickle
@@ -131,7 +132,7 @@ class Planet:
             outline='grey'
         )
         self.text = canvas.create_text(self.x, self.y, text=int(self.mass), fill='white', font=self.font)
-
+        """
     def colorupdate(self):
         if self.mass <= 235:
             if self.owner == 1:
@@ -148,6 +149,7 @@ class Planet:
             else:
                 self.color = _from_rgb((128, 128, 128))
         self.redraw()
+"""
 
 
 class Line:
@@ -247,8 +249,6 @@ class Line:
                 self.planet2.mass += 0.1
             else:
                 self.planet2.mass -= 0.1
-                if self.planet2.mass <= 0:
-                    self.capture()
         elif self.begin == 1:
             self.planet1.mass -= 0.1
         elif self.end == 1:
@@ -256,14 +256,16 @@ class Line:
                 self.planet2.mass += 0.1
             else:
                 self.planet2.mass -= 0.1
-                if self.planet2.mass <= 0:
-                    self.capture()
+
+        if self.planet2.mass <= 0:
+            self.capture()
 
     def capture(self):
         self.planet2.color = self.color
         self.planet2.owner = self.o_start
         self.planet2.level = 1
         self.planet2.redraw()
+        self.planet2.mass = 1
 
     def stop(self):
         canvas.delete(self.id)
@@ -301,6 +303,54 @@ def click(event):
                 j.first_click()
 
 
+def read_space_objects_data_from_file(input_filename):
+    """Cчитывает данные о космических объектах из файла, создаёт сами объекты
+    и вызывает создание их графических образов
+
+    Параметры:
+
+    **input_filename** — имя входного файла
+    """
+    objects = []
+    print(1)
+    with open(input_filename) as input_file:
+        for line in input_file:
+            if len(line.strip()) == 0 or line[0] == '#':
+                continue  # пустые строки и строки-комментарии пропускаем
+            object_type = line.split()[0].lower()
+            if object_type == "planet":
+                p = parse_planet_parameters(line)
+                objects.append(p)
+            else:
+                print("Unknown space object")
+    return objects
+
+
+def parse_planet_parameters(line):
+    """Считывает данные о планете из строки.
+    Предполагается такая строка:
+    Входная строка должна иметь слеюущий формат:
+    Planet <масса> <x> <y> <пользователь> <уровень>
+
+    Здесь (x, y) — координаты планеты.
+    Пример строки:
+    planet 10 500 400 1 2
+
+    Параметры:
+
+    **line** — строка с описание планеты.
+    **planet** — объект планеты.
+    """
+    line = line.split()
+
+    parameter_1 = int(line[1])
+    parameter_2 = int(line[2])
+    parameter_3 = int(line[3])
+    parameter_4 = int(line[4])
+    parameter_5 = int(line[5])
+    return Planet(parameter_1, parameter_2, parameter_3, parameter_4, parameter_5)
+
+
 def II():
     global planets
     my_planets = []
@@ -327,7 +377,7 @@ def II():
                     if (i.x - j.x) ** 2 + (i.y - j.y) ** 2 <= length ** 2:
                         length = ((i.x - j.x) ** 2 + (i.y - j.y) ** 2) ** 0.5
                         target1 = j
-            if target1.mass < attak_potensial:
+            if target1.mass + 3 < attak_potensial:
                 target = target1
                 break
             else:
@@ -357,23 +407,16 @@ def update():
     for j in planets:
         j.grow()
         j.massupdate()
-        if counter % 50 == 0:
-            j.colorupdate()
+        """if counter % 100 == 0:
+            j.colorupdate()"""
     counter += 1
     root.after(10, update)
 
-
 def main():
     global planets
-    p1 = Planet(50, 400, 400, 2, 2)
-    p2 = Planet(20, 500, 400, 0, 2)
-    p3 = Planet(20, 600, 400, 1, 2)
-    p4 = Planet(20, 500, 500, 0, 2)
-    p5 = Planet(20, 500, 300, 0, 2)
-    planets = [p1, p2, p3, p4, p5]
+    planets = read_space_objects_data_from_file('Test.txt')
     canvas.bind('<Button-1>', click)
     update()
-
 
 main()
 
