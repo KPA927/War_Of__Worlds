@@ -1,0 +1,9 @@
+planet 	30 550 450 2 2
+planet	30 450 450 2 2
+planet	30 550 550 2 2
+planet  30 500 500 1 2
+planet	30 450 550 2 2
+planet	20 600 500 1 1
+planet	20 400 500 0 1
+planet	20 500 600 0 1
+planet	20 500 400 0 1
