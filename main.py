@@ -109,13 +109,20 @@ counter = 0
 aggressiveness = 0
 
 
+
 def _from_rgb(rgb):
     return "#%02x%02x%02x" % rgb
 
 
 class Planet:
-    '''Этот класс отвечает за создание и отрисовку планет,
-    их динамическое цветовое отображение'''
+    """Класс планет. Отрисовывает планеты, настраивает взаимодействие между ними.
+    Также планеты можно улучшать.
+
+    args **mass** - масса планеты
+    **x**, **y** - координаты (x, y) планеты
+    **owner** - владелец планеты (1 - игрок, 2 и 3 -боты, 0 - нейтральные планеты)
+    **lvl** - уровень планеты (от 1 до 4)
+    """
     def __init__(self,
                  mass,
                  x,
@@ -168,7 +175,8 @@ class Planet:
             end = other.owner
             mass = self.mass
             color = self.color
-            l = Line(self, other, start, mass, color)
+            owner = self.owner
+            l = Line(self, other, start, mass, color, owner)
             lines.append(l)
         else:
             if (self.mass >= self.level * 21) and (self.level < 4):
@@ -234,14 +242,15 @@ class Planet:
 
 
 class Line:
-    '''Этот класс овечает за отрисовку линий,
-    с помощью которых атакуют планеты и пресчет масс'''
+    """Этот класс овечает за отрисовку линий,
+    с помощью которых атакуют планеты и пресчет масс"""
     def __init__(self,
                  p1,
                  p2,
                  start,
                  mass,
-                 color
+                 color,
+                 owner
     ):
         self.color = p1.color
         self.an = math.atan2((p2.y - p1.y), (p2.x - p1.x))
@@ -257,6 +266,7 @@ class Line:
         self.color = color
         self.o_start = start
         self.Num = mass
+        self.owner = owner
         self.max = 0
         self.count1 = 0
         self.count2 = 0
@@ -302,7 +312,7 @@ class Line:
                 self.end = 1
                 self.count2 += 0.1
             else:
-                self.stop()
+                self.finish()
 
         if self.Num > self.max:
             if self.count1 < self.max:
@@ -314,7 +324,7 @@ class Line:
                 self.count2 += 0.1
                 self.begin = 0
             else:
-                self.stop()
+                self.finish()
         self.update_mass()
 
     def redraw(self):
@@ -338,8 +348,12 @@ class Line:
                 self.planet2.mass += 0.1
             else:
                 self.planet2.mass -= 0.1
+
+        if self.planet1.owner != self.owner:
+            self.stop()
         if self.planet2.mass <= 0:
-            self.capture()
+            self.capture(self.planet2)
+        self.update()
 
 
     def capture(self):
@@ -352,16 +366,28 @@ class Line:
         self.planet2.highlighting = 0
         canvas.delete(self.planet2.id1)
 
-    def stop(self):
+    def finish(self):
         canvas.delete(self.id)
         self.begin = 0
         self.end = 0
         lines.remove(self)
 
+    def stop(self):
+        self.begin = 0
+        self.Num = self.count1
+
+    def update(self):
+        self.x1 = self.planet1.x + self.planet1.r * math.cos(self.an)
+        self.y1 = self.planet1.y + self.planet1.r * math.sin(self.an)
+        self.x2 = self.planet2.x - self.planet2.r * math.cos(self.an)
+        self.y2 = self.planet2.y - self.planet2.r * math.sin(self.an)
+        self.r = ((self.x1 - self.x2) ** 2 + (self.y1 - self.y2) ** 2) ** 0.5
+        self.redraw()
+
 
 def click(event):
-    '''Эта функция реагирует на нажатие ллевой кнопкой мыши игроком, позволяет
-    выделить планету, провести атаку, или сделать апгрейд'''
+    """Эта функция реагирует на нажатие ллевой кнопкой мыши игроком, позволяет
+    выделить планету, провести атаку, или сделать апгрейд"""
     sec_click = 0
     i = 0
     allow = 1
@@ -391,6 +417,7 @@ def click(event):
 
 
 def read_space_objects_data_from_file(input_filename):
+    global aggresiveness
     """Cчитывает данные о космических объектах из файла, создаёт сами объекты
     и вызывает создание их графических образов
 
@@ -408,7 +435,7 @@ def read_space_objects_data_from_file(input_filename):
                 p = parse_planet_parameters(line)
                 objects.append(p)
             else:
-                print("Unknown space object")
+                aggresiveness = int(line[0])
     return objects
 
 
@@ -438,7 +465,7 @@ def parse_planet_parameters(line):
 
 
 def II(me):
-    '''Эта функция отвечает за поведение вражеских планет'''
+    """Эта функция отвечает за поведение вражеских планет"""
     global planets, aggressiveness
     all_planets = []
     for i in planets:
@@ -561,7 +588,7 @@ def II(me):
 
 
 def update():
-    '''Эта функия отвечает за обновление экрана'''
+    """Эта функия отвечает за обновление экрана"""
     global counter
     if counter >= 500:
         counter = 0
@@ -578,7 +605,7 @@ def update():
 
 def main():
     global planets
-    planets = read_space_objects_data_from_file('Example.txt')
+    planets = read_space_objects_data_from_file(r"C:\Python\War_Of__Worlds\Maps\2.txt")
     canvas.bind('<Button-1>', click)
     update()
 
