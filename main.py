@@ -259,8 +259,6 @@ class Line:
                 self.planet2.mass += 0.1
             else:
                 self.planet2.mass -= 0.1
-        if self.planet2.mass <= 0:
-            self.capture(self.planet2)
         elif self.begin == 1:
             self.planet1.mass -= 0.1
         elif self.end == 1:
@@ -268,8 +266,6 @@ class Line:
                 self.planet2.mass += 0.1
             else:
                 self.planet2.mass -= 0.1
-        if self.planet2.mass <= 0:
-            self.capture()
         if self.planet2.mass <= 0:
             self.capture(self.planet2)
 
@@ -280,7 +276,6 @@ class Line:
         self.planet2.r = 17
         self.planet2.mass = 1
         self.planet2.redraw()
-        self.planet2.mass = 1
         other.highlighting = 0
         canvas.delete(other.id1)
 
@@ -388,7 +383,7 @@ def II(me):
     attak_potensial = 0
     for i in planets:
         if i.owner == me:
-            if i.mass == 25 * (2 ** i.level):
+            if i.mass >= 25 * (2 ** i.level):
                 i.second_click(i)
             else:
                 my_planets.append(i)
@@ -401,21 +396,6 @@ def II(me):
     if len(my_planets) != 0 and len(other_planets) != 0:
         for i in my_planets:
             attak_potensial += i.mass
-        while exit <= len(other_planets):
-            for i in my_planets:
-                for j in other_planets:
-                    if (i.x - j.x) ** 2 + (i.y - j.y) ** 2 <= length ** 2:
-                        length = ((i.x - j.x) ** 2 + (i.y - j.y) ** 2) ** 0.5
-                        target1 = j
-            if target1.mass + 3 < attak_potensial:
-                target = target1
-                break
-            for k in lines:
-                if k.planet1 == i:
-                    allow2 = 0
-            if allow2 == 1:
-                attak_potensial += i.mass
-            allow2 = 1
         if len(enemy_planets) != 0:
             while exit <= len(enemy_planets):
                 for i in my_planets:
