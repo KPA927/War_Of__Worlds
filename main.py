@@ -13,7 +13,6 @@ canvas.focus_set()
 canvas.pack(fill=tk.BOTH, expand=1)
 lines = []
 planets = []
-
 counter = 0
 
 
@@ -22,6 +21,8 @@ def _from_rgb(rgb):
 
 
 class Planet:
+    '''Этот класс отвечает за создание и отрисовку планет,
+    их динамическое цветовое отображение'''
     def __init__(self,
                  mass,
                  x,
@@ -151,6 +152,8 @@ class Planet:
 
 
 class Line:
+    '''Этот класс овечает за отрисовку линий,
+    с помощью которых атакуют планеты и пресчет масс'''
     def __init__(self,
                  p1,
                  p2,
@@ -263,6 +266,8 @@ class Line:
         self.planet2.color = self.color
         self.planet2.owner = self.o_start
         self.planet2.level = 1
+        self.planet2.r = 17
+        self.planet2.mass = 1
         self.planet2.redraw()
 
     def stop(self):
@@ -273,6 +278,8 @@ class Line:
 
 
 def click(event):
+    '''Эта функция реагирует на нажатие ллевой кнопкой мыши игроком, позволяет
+    выделить планету, провести атаку, или сделать апгрейд'''
     sec_click = 0
     i = 0
     allow = 1
@@ -285,7 +292,7 @@ def click(event):
         for j in planets:
             if ((event.x - j.x) ** 2 + (event.y - j.y) ** 2) <= (j.r) ** 2:
                 for k in lines:
-                    if k.planet1 == i and k.planet2 == j:
+                    if k.planet1 == i:
                         allow = 0
                 if i.mass <= 0:
                     allow = 0
@@ -302,6 +309,7 @@ def click(event):
 
 
 def II():
+    '''Эта функция отвечает за поведение вражеских планет'''
     global planets
     my_planets = []
     other_planets = []
@@ -309,6 +317,7 @@ def II():
     target = 0
     length = 5000
     exit = 0
+    allow2 = 1
     attak_potensial = 0
     for i in planets:
         if i.owner == 2:
@@ -320,7 +329,12 @@ def II():
             other_planets.append(i)
     if len(my_planets) != 0 and len(other_planets) != 0:
         for i in my_planets:
-            attak_potensial += i.mass
+            for k in lines:
+                if k.planet1 == i:
+                    allow2 = 0
+            if allow2 == 1:
+                attak_potensial += i.mass
+            allow2 = 1
         while exit <= len(other_planets):
             for i in my_planets:
                 for j in other_planets:
@@ -337,7 +351,7 @@ def II():
         if target != 0:
             for i in my_planets:
                 for k in lines:
-                    if k.planet1 == i and k.planet2 == target:
+                    if k.planet1 == i:
                         allow = 0
                 if i.mass <= 0:
                     allow = 0
@@ -347,6 +361,7 @@ def II():
 
 
 def update():
+    '''Эта функия отвечает за обновление экрана'''
     global counter
     if counter >= 500:
         counter = 0
@@ -357,7 +372,7 @@ def update():
     for j in planets:
         j.grow()
         j.massupdate()
-        if counter % 50 == 0:
+        if counter % 200 == 0:
             j.colorupdate()
     counter += 1
     root.after(10, update)
@@ -366,10 +381,10 @@ def update():
 def main():
     global planets
     p1 = Planet(50, 400, 400, 2, 2)
-    p2 = Planet(20, 500, 400, 0, 2)
+    p2 = Planet(20, 500, 400, 0, 1)
     p3 = Planet(20, 600, 400, 1, 2)
-    p4 = Planet(20, 500, 500, 0, 2)
-    p5 = Planet(20, 500, 300, 0, 2)
+    p4 = Planet(20, 500, 500, 0, 1)
+    p5 = Planet(20, 500, 300, 0, 1)
     planets = [p1, p2, p3, p4, p5]
     canvas.bind('<Button-1>', click)
     update()
