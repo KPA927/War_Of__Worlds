@@ -250,6 +250,7 @@ class Line:
         if self.planet2.mass <= 0:
             self.capture()
 
+
     def capture(self):
         self.planet2.color = self.color
         self.planet2.owner = self.o_start
