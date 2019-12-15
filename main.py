@@ -1,3 +1,4 @@
+from tkinter import *
 from random import randrange as rnd, choice
 import tkinter as tk
 import math
@@ -5,6 +6,96 @@ import math
 import time
 import socket
 import pickle
+
+def casual_game():
+    first = Toplevel()
+    first.geometry('400x400')
+    first['bg'] = 'grey'
+    header = Label(first,text="Выберите курс", padx=15, pady=10)
+    header.grid(row=0, column=0, sticky=W)
+ 
+    lang = IntVar()
+ 
+    python_checkbutton = Radiobutton(first,text="Python", value=1, variable=lang, padx=15, pady=10)
+    python_checkbutton.grid(row=1, column=0, sticky=W)
+ 
+    javascript_checkbutton = Radiobutton(first,text="JavaScript", value=2, variable=lang, padx=15, pady=10)
+    javascript_checkbutton.grid(row=2, column=0, sticky=W)
+
+    btn_game = Button(first, text="ОК", background="grey", foreground="white", activebackground="red", activeforeground="green",
+            padx="20", pady="8", font="16", command=lets_play)
+    btn_game.place(relx=.5, rely=.2, anchor="c", height=60, width=130, bordermode=OUTSIDE)
+
+
+
+def first_game():
+        first = Toplevel()
+        first.geometry('400x400')
+        first['bg'] = 'grey'
+        Label(first, text="Правила игры...").pack(expand=1)
+        btn_game = Button(first, text="ОК", background="grey", foreground="white", activebackground="red", activeforeground="green",
+            padx="20", pady="8", font="16", command=lets_play)
+        btn_game.place(relx=.5, rely=.2, anchor="c", height=60, width=130, bordermode=OUTSIDE)
+def lets_play():
+root = Tk()
+root.title("Война миров")
+root.geometry("900x900")
+     
+btn1 = Button(text="Начать игру", background="grey", foreground="white", activebackground="red", activeforeground="green",
+                 padx="20", pady="8", font="16", command=casual_game)
+btn1.place(relx=.5, rely=.2, anchor="c", height=60, width=130, bordermode=OUTSIDE)
+
+btn2 = Button(text="Наш проект", background="grey", foreground="white", activebackground="red", activeforeground="green",
+                 padx="20", pady="8", font="16", command=first_game)
+btn2.place(relx=.5, rely=.8, anchor="c", height=60, width=130, bordermode=OUTSIDE)
+
+
+
+'''framelist = []      # List to hold all the frames
+frame_index = 0     # Frame index
+
+while True:
+    try:
+        # Read a frame from GIF file
+        part = 'gif -index {}'.format(frame_index)
+        frame = tk.PhotoImage(file='C:\\Users\\Admin\\Desktop\\starwars.gif', format=part)
+    except:
+        last_frame = frame_index - 1    # Save index for last frame
+        break               # Will break when GIF index is reached
+    framelist.append(frame)
+    frame_index += 1        # Next frame index
+
+def animate(frame_number):
+    if frame_number > last_frame:
+        frame_number = 0
+    label.config(image=framelist[frame_number]) 
+    root.after(50, animate, frame_number+1)
+
+label = tk.Label(root, bg='#202020')
+label.pack()
+
+animate(0)  # Start animation'''
+
+
+    
+
+
+
+
+ 
+
+def _from_rgb(rgb):
+    return "#%02x%02x%02x" % rgb
+
+lines = []
+planets = []
+counter = 0
+aggressiveness = 5
+
+
+
+
+
 
 root = tk.Tk()
 fr = tk.Frame(root)
