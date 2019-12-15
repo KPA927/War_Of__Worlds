@@ -47,6 +47,8 @@ class Planet:
                 self.color = _from_rgb((52, 235 - int(self.mass), 235))
             elif self.owner == 2:
                 self.color = _from_rgb((235, 235 - int(self.mass), 52))
+            elif self.owner == 3:
+                self.color = _from_rgb((52, 235 - int(self.mass), 52))
             else:
                 self.color = _from_rgb((128, 128, 128))
         else:
@@ -54,6 +56,8 @@ class Planet:
                 self.color = _from_rgb((52, 0, 235))
             elif self.owner == 2:
                 self.color = _from_rgb((235, 0, 52))
+            elif self.owner == 3:
+                self.color = _from_rgb((52, 0, 52))
             else:
                 self.color = _from_rgb((128, 128, 128))
         if self.owner == 1:
@@ -87,7 +91,6 @@ class Planet:
             end = other.owner
             mass = self.mass
             color = self.color
-            print(start, end)
             l = Line(self, other, start, mass, color)
             lines.append(l)
         else:
@@ -141,6 +144,8 @@ class Planet:
                 self.color = _from_rgb((52, 235 - int(self.mass), 235))
             elif self.owner == 2:
                 self.color = _from_rgb((235, 235 - int(self.mass), 52))
+            elif self.owner == 3:
+                self.color = _from_rgb((52, 235 - int(self.mass), 52))
             else:
                 self.color = _from_rgb((128, 128, 128))
         else:
@@ -148,6 +153,8 @@ class Planet:
                 self.color = _from_rgb((52, 0, 235))
             elif self.owner == 2:
                 self.color = _from_rgb((235, 0, 52))
+            elif self.owner == 3:
+                self.color = _from_rgb((52, 0, 52))
             else:
                 self.color = _from_rgb((128, 128, 128))
         self.redraw()
@@ -363,7 +370,7 @@ def parse_planet_parameters(line):
     return Planet(parameter_1, parameter_2, parameter_3, parameter_4, parameter_5)
 
 
-def II():
+def II(me):
     '''Эта функция отвечает за поведение вражеских планет'''
     global planets, aggressiveness
     my_planets = []
@@ -380,7 +387,7 @@ def II():
     allow2 = 1
     attak_potensial = 0
     for i in planets:
-        if i.owner == 2:
+        if i.owner == me:
             if i.mass == 25 * (2 ** i.level):
                 i.second_click(i)
             else:
@@ -465,7 +472,8 @@ def update():
     global counter
     if counter >= 500:
         counter = 0
-        II()
+        for i in range(2):
+            II(i + 2)
     for i in lines:
         i.grow()
         i.redraw()
@@ -479,7 +487,7 @@ def update():
 
 def main():
     global planets
-    planets = read_space_objects_data_from_file('Test.txt')
+    planets = read_space_objects_data_from_file('Example.txt')
     canvas.bind('<Button-1>', click)
     update()
 
