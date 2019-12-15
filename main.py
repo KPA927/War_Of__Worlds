@@ -14,6 +14,7 @@ canvas.pack(fill=tk.BOTH, expand=1)
 lines = []
 planets = []
 counter = 0
+aggressiveness = 5
 
 
 def _from_rgb(rgb):
@@ -251,7 +252,7 @@ class Line:
             else:
                 self.planet2.mass -= 0.1
                 if self.planet2.mass <= 0:
-                    self.capture()
+                    self.capture(self.planet2)
         elif self.begin == 1:
             self.planet1.mass -= 0.1
         elif self.end == 1:
@@ -260,15 +261,17 @@ class Line:
             else:
                 self.planet2.mass -= 0.1
                 if self.planet2.mass <= 0:
-                    self.capture()
+                    self.capture(self.planet2)
 
-    def capture(self):
+    def capture(self, other):
         self.planet2.color = self.color
         self.planet2.owner = self.o_start
         self.planet2.level = 1
         self.planet2.r = 17
         self.planet2.mass = 1
         self.planet2.redraw()
+        other.highlighting = 0
+        canvas.delete(other.id1)
 
     def stop(self):
         canvas.delete(self.id)
@@ -310,12 +313,17 @@ def click(event):
 
 def II():
     '''Эта функция отвечает за поведение вражеских планет'''
-    global planets
+    global planets, aggressiveness
     my_planets = []
     other_planets = []
+    enemy_planets = []
+    neutral_planets = []
     allow = 1
     target = 0
-    length = 5000
+    enemy_target = 0
+    neutral_target = 0
+    enemy_length = 5000
+    neutral_length = 5000
     exit = 0
     allow2 = 1
     attak_potensial = 0
@@ -327,6 +335,10 @@ def II():
                 my_planets.append(i)
         else:
             other_planets.append(i)
+            if i.owner == 0:
+                neutral_planets.append(i)
+            else:
+                enemy_planets.append(i)
     if len(my_planets) != 0 and len(other_planets) != 0:
         for i in my_planets:
             for k in lines:
@@ -335,19 +347,45 @@ def II():
             if allow2 == 1:
                 attak_potensial += i.mass
             allow2 = 1
-        while exit <= len(other_planets):
-            for i in my_planets:
-                for j in other_planets:
-                    if (i.x - j.x) ** 2 + (i.y - j.y) ** 2 <= length ** 2:
-                        length = ((i.x - j.x) ** 2 + (i.y - j.y) ** 2) ** 0.5
-                        target1 = j
-            if target1.mass < attak_potensial:
-                target = target1
-                break
+        if len(enemy_planets) != 0:
+            while exit <= len(enemy_planets):
+                for i in my_planets:
+                    for j in enemy_planets:
+                        if (i.x - j.x) ** 2 + (i.y - j.y) ** 2 <= enemy_length ** 2:
+                            enemy_length = ((i.x - j.x) ** 2 + (i.y - j.y) ** 2) ** 0.5
+                            target1 = j
+                if target1.mass + 3 < attak_potensial:
+                    enemy_target = target1
+                    break
+                else:
+                    enemy_planets.remove(target1)
+                    exit += 1
+                enemy_length = 5000
+        if len(neutral_planets) != 0:
+            while exit <= len(neutral_planets):
+                for i in my_planets:
+                    for j in neutral_planets:
+                        if (i.x - j.x) ** 2 + (i.y - j.y) ** 2 <= neutral_length ** 2:
+                            neutral_length = ((i.x - j.x) ** 2 + (i.y - j.y) ** 2) ** 0.5
+                            target1 = j
+                if target1.mass + 3 < attak_potensial:
+                    neutral_target = target1
+                    break
+                else:
+                    neutral_planets.remove(target1)
+                    exit += 1
+                neutral_length = 5000
+        if neutral_target == 0:
+            target = enemy_target
+        elif enemy_target == 0:
+            target = neutral_target
+        elif neutral_target == 0 and enemy_target == 0:
+            pass
+        else:
+            if neutral_length * (1 + aggressiveness * 0.3) < enemy_length:
+                target = neutral_target
             else:
-                other_planets.remove(target1)
-                exit += 1
-            length = 5000
+                target = enemy_target
         if target != 0:
             for i in my_planets:
                 for k in lines:
