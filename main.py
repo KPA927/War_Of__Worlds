@@ -26,7 +26,7 @@ def casual_game():
     btn_game = Button(first, text="ОК", background="grey", foreground="white", activebackground="red", activeforeground="green",
             padx="20", pady="8", font="16", command=lets_play)
     btn_game.place(relx=.5, rely=.2, anchor="c", height=60, width=130, bordermode=OUTSIDE)
-
+    main('7')
 
 
 def first_game():
@@ -37,6 +37,9 @@ def first_game():
         btn_game = Button(first, text="ОК", background="grey", foreground="white", activebackground="red", activeforeground="green",
             padx="20", pady="8", font="16", command=lets_play)
         btn_game.place(relx=.5, rely=.2, anchor="c", height=60, width=130, bordermode=OUTSIDE)
+        main('How_to_play')
+
+
 def lets_play():
     root = Tk()
     root.title("Война миров")
@@ -368,6 +371,7 @@ class Line:
         self.r = ((self.x1 - self.x2) ** 2 + (self.y1 - self.y2) ** 2) ** 0.5
         self.redraw()
 
+
 def click(event):
     """
     Эта функция реагирует на нажатие ллевой кнопкой мыши игроком, позволяет
@@ -600,12 +604,14 @@ def update():
     root.after(10, update)
 
 
-def main():
+def main(s0):
     global planets
-    planets = read_space_objects_data_from_file(r"C:\Users\acer\War_Of__Worlds\Maps\7.txt")
+    s = 'C:\Python\War_Of__Worlds\Maps/' + s0 + '.txt'
+    planets = read_space_objects_data_from_file(s)
     canvas.bind('<Button-1>', click)
     update()
 
-main()
+
+lets_play()
 
 root.mainloop()
