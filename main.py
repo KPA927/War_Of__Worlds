@@ -44,6 +44,7 @@ class Planet:
         self.level = lvl
         self.owner = owner
         self.r = lvl * 7 + 10
+        self.busyness = 0
         self.highlighting = 0
         self.font = "Times " + str(int(12 * math.sqrt(self.level)))
         self.growing = 0
@@ -92,6 +93,7 @@ class Planet:
 
     def second_click(self, other):
         if self != other:
+            self.busyness = 1
             start = self.owner
             end = other.owner
             mass = self.mass
@@ -322,7 +324,7 @@ def click(event):
 
     if sec_click == 1:
         for j in planets:
-            if ((event.x - j.x) ** 2 + (event.y - j.y) ** 2) <= (j.r) ** 2:
+            if ((event.x - j.x) ** 2 + (event.y - j.y) ** 2) <= j.r ** 2:
                 for k in lines:
                     if k.planet1 == i:
                         allow = 0
@@ -341,7 +343,7 @@ def click(event):
 
 
 def read_space_objects_data_from_file(input_filename):
-    global aggresiveness
+    global aggressiveness
     """Cчитывает данные о космических объектах из файла, создаёт сами объекты
     и вызывает создание их графических образов
 
@@ -359,7 +361,8 @@ def read_space_objects_data_from_file(input_filename):
                 p = parse_planet_parameters(line)
                 objects.append(p)
             else:
-                aggresiveness = int(line[0])
+                aggressiveness = int(object_type)
+                print(aggressiveness)
     return objects
 
 
@@ -490,7 +493,7 @@ def update():
 
 def main():
     global planets
-    planets = read_space_objects_data_from_file(r"C:\Python\War_Of__Worlds\Maps\2.txt")
+    planets = read_space_objects_data_from_file(r"C:\Python\War_Of__Worlds\Maps\1.txt")
     canvas.bind('<Button-1>', click)
     update()
 
