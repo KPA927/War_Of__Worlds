@@ -8,37 +8,60 @@ import time
 import socket
 import pickle
 
+root = tk.Tk()
+fr = tk.Frame(root)
+root.geometry('1920x1080')
+canvas = tk.Canvas(root, bg='black')
+canvas.focus_set()
+canvas.pack(fill=tk.BOTH, expand=1)
+lines = []
+planets = []
+counter = 0
+aggressiveness = 0
+
+
 def casual_game():
     first = Toplevel()
     first.geometry('400x400')
     first['bg'] = 'grey'
-    header = Label(first,text="Выберите курс", padx=15, pady=10)
+    header = Label(first, text="Выберите курс", padx=15, pady=10)
     header.grid(row=0, column=0, sticky=W)
- 
+
     lang = IntVar()
- 
-    python_checkbutton = Radiobutton(first,text="Python", value=1, variable=lang, padx=15, pady=10)
+
+    python_checkbutton = Radiobutton(first, text="Python", value=1, variable=lang, padx=15, pady=10)
     python_checkbutton.grid(row=1, column=0, sticky=W)
- 
-    javascript_checkbutton = Radiobutton(first,text="JavaScript", value=2, variable=lang, padx=15, pady=10)
+
+    javascript_checkbutton = Radiobutton(first, text="JavaScript", value=2, variable=lang, padx=15, pady=10)
     javascript_checkbutton.grid(row=2, column=0, sticky=W)
 
-    btn_game = Button(first, text="ОК", background="grey", foreground="white", activebackground="red", activeforeground="green",
-            padx="20", pady="8", font="16", command=game)
+    btn_game = Button(first, text="ОК", background="grey", foreground="white", activebackground="red",
+                      activeforeground="green",
+                      padx="20", pady="8", font="16", command=lets_play)
     btn_game.place(relx=.5, rely=.2, anchor="c", height=60, width=130, bordermode=OUTSIDE)
-    
+    main('7')
+
 
 
 def first_game():
     first = Toplevel()
     first.geometry('400x400')
     first['bg'] = 'grey'
-    Label(first, text="Правила игры...").pack(expand=1)
-    btn_game = Button(first, text="ОК", background="grey", foreground="white", activebackground="red", activeforeground="green",
-            padx="20", pady="8", font="16", command=game)
-    btn_game.place(relx=.5, rely=.2, anchor="c", height=60, width=130, bordermode=OUTSIDE)
 
-        
+    Label(first, text="Правила игры\\"
+                      "").pack(expand=1)
+    btn_game = Button(first, text="ОК", background="grey", foreground="white", activebackground="red",
+                      activeforeground="green",
+                      padx="20", pady="8", font="16", command=lets_play)
+    btn_game.place(relx=.5, rely=.2, anchor="c", height=60, width=130, bordermode=OUTSIDE)
+    main('How_to_play')
+
+
+def _from_rgb(rgb):
+    return "#%02x%02x%02x" % rgb
+
+
+
 def lets_play():
     root = Tk()
     root.title("Война миров")
@@ -54,48 +77,95 @@ def lets_play():
                   padx="20", pady="8", font="16", command=first_game)
     btn2.place(relx=.5, rely=.8, anchor="c", height=60, width=130, bordermode=OUTSIDE)
 
+    def animate(frame_number):
+        if frame_number > last_frame:
+            frame_number = 0
+        label.config(image=framelist[frame_number]) 
+        root.after(50, animate, frame_number+1)
 
-def game():
-    root = Tk()
-    fr = tk.Frame(root)
-    root.geometry('1920x1080')
-    canvas = tk.Canvas(root, bg='black')
-    canvas.focus_set()
-    canvas.pack(fill=tk.BOTH, expand=1)
-    class Planet:
-        """Класс планет. Отрисовывает планеты, настраивает взаимодействие между ними.
-        Также планеты можно улучшать.
+    label = tk.Label(root, bg='#202020')
+    label.pack()
 
-        args **mass** - масса планеты
-        **x**, **y** - координаты (x, y) планеты
-        **owner** - владелец планеты (1 - игрок, 2 и 3 -боты, 0 - нейтральные планеты)
-        **lvl** - уровень планеты (от 1 до 4)
-        """
-        def __init__(self,
-                     mass,
-                     x,
-                     y,
-                     owner,
-                     lvl):
-            self.mass = mass
-            self.mass_limit = 0
-            self.x = x
-            self.y = y
-            self.id1 = 0
-            self.level = lvl
-            self.owner = owner
-            self.r = lvl * 7 + 10
-            self.highlighting = 0
-            self.font = "Times " + str(int(12 * math.sqrt(self.level)))
-            self.growing = 0
-            if self.owner == 1:
-                self.color = _from_rgb((52, 235 - int(self.level - 1) * 78, 235))
-            elif self.owner == 2:
-                self.color = _from_rgb((235, 235 - int(self.level - 1) * 78, 52))
-            elif self.owner == 3:
-                self.color = _from_rgb((52, 235 - int(self.level - 1) * 78, 52))
-            else:
-                self.color = _from_rgb((128, 128, 128))
+    animate(0)  # Start animation'''
+
+
+class Planet:
+    """Класс планет. Отрисовывает планеты, настраивает взаимодействие между ними.
+    Также планеты можно улучшать.
+
+    args **mass** - масса планеты
+    **x**, **y** - координаты (x, y) планеты
+    **owner** - владелец планеты (1 - игрок, 2 и 3 -боты, 0 - нейтральные планеты)
+    **lvl** - уровень планеты (от 1 до 4)
+    """
+    def __init__(self,
+                 mass,
+                 x,
+                 y,
+                 owner,
+                 lvl):
+        self.mass = mass
+        self.mass_limit = 0
+        self.x = x
+        self.y = y
+        self.id1 = 0
+        self.level = lvl
+        self.owner = owner
+        self.r = lvl * 7 + 10
+        self.busyness = 0
+        self.highlighting = 0
+        self.font = "Times " + str(int(12 * math.sqrt(self.level)))
+        self.growing = 0
+        if self.owner == 1:
+            self.color = _from_rgb((52, 235 - int(self.level - 1) * 78, 235))
+        elif self.owner == 2:
+            self.color = _from_rgb((235, 235 - int(self.level - 1) * 78, 52))
+        elif self.owner == 3:
+            self.color = _from_rgb((52, 235 - int(self.level - 1) * 78, 52))
+        else:
+            self.color = _from_rgb((128, 128, 128))
+        self.id = canvas.create_oval(
+            self.x - self.r,
+            self.y - self.r,
+            self.x + self.r,
+            self.y + self.r,
+            fill=self.color,
+            outline='grey'
+        )
+        self.text = canvas.create_text(self.x, self.y, text=int(self.mass), fill='white', font=self.font)
+
+    def first_click(self):
+        self.highlighting = 1
+        self.id1 = canvas.create_oval(
+            self.x - self.r - 5,
+            self.y - self.r - 5,
+            self.x + self.r + 5,
+            self.y + self.r + 5,
+            width=3,
+            outline='grey'
+        )
+
+    def second_click(self, other):
+        if self != other:
+            self.busyness = 1
+            start = self.owner
+            end = other.owner
+            mass = self.mass
+            color = self.color
+            owner = self.owner
+            l = Line(self, other, start, mass, color, owner)
+            lines.append(l)
+        else:
+            if (self.mass >= self.level * 21) and (self.level < 4):
+                self.growing = 7
+                self.level += 1
+
+    def grow(self):
+        if self.growing > 0:
+            self.r += 0.1
+            self.mass -= 0.3 * (self.level - 1)
+            canvas.delete(self.id)
+
             self.id = canvas.create_oval(
                 self.x - self.r,
                 self.y - self.r,
@@ -322,100 +392,35 @@ def game():
             self.end = 0
             lines.remove(self)
 
-        def stop(self):
-            if self.begin != 0:
-                self.Num = self.count1
-                self.begin = 0
 
-        def update(self):
-            self.x1 = self.planet1.x + self.planet1.r * math.cos(self.an)
-            self.y1 = self.planet1.y + self.planet1.r * math.sin(self.an)
-            self.x2 = self.planet2.x - self.planet2.r * math.cos(self.an)
-            self.y2 = self.planet2.y - self.planet2.r * math.sin(self.an)
-            self.r = ((self.x1 - self.x2) ** 2 + (self.y1 - self.y2) ** 2) ** 0.5
-            self.redraw()
-
-    def parse_planet_parameters(line):
-        """Считывает данные о планете из строки.
-        Предполагается такая строка:
-        Входная строка должна иметь слеюущий формат:
-        Planet <масса> <x> <y> <пользователь> <уровень>
-
-        Здесь (x, y) — координаты планеты.
-        Пример строки:
-        planet 10 500 400 1 2
-
-        Параметры:
-
-        **line** — строка с описание планеты.
-        **planet** — объект планеты.
-        """
-        line = line.split()
-
-        parameter_1 = int(line[1])
-        parameter_2 = int(line[2])
-        parameter_3 = int(line[3])
-        parameter_4 = int(line[4])
-        parameter_5 = int(line[5])
-        return Planet(parameter_1, parameter_2, parameter_3, parameter_4, parameter_5)
-
-    def read_space_objects_data_from_file(input_filename):
-        global aggressiveness
-        """Cчитывает данные о космических объектах из файла, создаёт сами объекты
-        и вызывает создание их графических образов
-
-        Параметры:
-
-        **input_filename** — имя входного файла
-        """
-        objects = []
-        with open(input_filename) as input_file:
-            for line in input_file:
-                if len(line.strip()) == 0 or line[0] == '#':
-                    continue  # пустые строки и строки-комментарии пропускаем
-                object_type = line.split()[0].lower()
-                if object_type == "planet":
-                    p = parse_planet_parameters(line)
-                    objects.append(p)
-                else:
-                    aggressiveness = int(object_type)
-        return objects
-
-    def _from_rgb(rgb):
-        return "#%02x%02x%02x" % rgb
+    def update(self):
+        self.x1 = self.planet1.x + self.planet1.r * math.cos(self.an)
+        self.y1 = self.planet1.y + self.planet1.r * math.sin(self.an)
+        self.x2 = self.planet2.x - self.planet2.r * math.cos(self.an)
+        self.y2 = self.planet2.y - self.planet2.r * math.sin(self.an)
+        self.r = ((self.x1 - self.x2) ** 2 + (self.y1 - self.y2) ** 2) ** 0.5
+        self.redraw()
 
 
-    def click(event):
-        """
-        Эта функция реагирует на нажатие ллевой кнопкой мыши игроком, позволяет
-        выделить планету, провести атаку, или сделать апгрейд
+def click(event):
+    """
+    Эта функция реагирует на нажатие ллевой кнопкой мыши игроком, позволяет
+    выделить планету, провести атаку, или сделать апгрейд
 
-        """
-        sec_click = 0
-        space_click = 1
-        i = 0
-        allow = 1
-        for i in planets:
-            if i.highlighting == 1:
-                sec_click = 1
-                break
+    """
+    sec_click = 0
+    space_click = 1
+    i = 0
+    allow = 1
+    for i in planets:
+        if i.highlighting == 1:
+            sec_click = 1
+            break
 
-        if sec_click == 1:
-            for j in planets:
-                if ((event.x - j.x) ** 2 + (event.y - j.y) ** 2) <= (j.r) ** 2:
-                    for k in lines:
-                        if k.planet1 == i:
-                            k.stop()
-                    if i.mass <= 0:
-                        allow = 0
-                    if allow == 1:
-                        i.second_click(j)
-                        space_click = 0
-                        break
-                    allow = 1
-            i.highlighting = 0
-            canvas.delete(i.id1)
-            if space_click == 1:
+    if sec_click == 1:
+        for j in planets:
+            if ((event.x - j.x) ** 2 + (event.y - j.y) ** 2) <= j.r ** 2:
+
                 for k in lines:
                     if k.planet1 == i:
                         k.stop()
@@ -509,106 +514,64 @@ def game():
                             maxmass = i.mass
                             maxmass_p = i
                     maxmass = 500
-                    my_planets.remove(maxmass_p)
-                    my_planets_at.append(maxmass_p)
-                    one_attack_potential = maxmass_p.mass
-                    while target.mass + 3 >= one_attack_potential:
-                        for i in my_planets:
-                            if i.mass <= maxmass:
-                                maxmass = i.mass
-                                maxmass_p = i
-                        if maxmass_p in my_planets:
-                            my_planets.remove(maxmass_p)
-                        my_planets_at.append(maxmass_p)
-                        maxmass = 500
-                        one_attack_potential += maxmass_p.mass
-                        if len(my_planets) == 0:
-                            stopper = 1
-                            break
-                    maxmass = 0
-                    if stopper == 0:
-                        for i in my_planets_at:
-                            for k in lines:
-                                if k.planet1 == i:
-                                    k.stop()
-                            if i.mass <= 0:
-                                allow = 0
-                            if allow == 1:
-                                i.second_click(target)
-                                if i in all_planets:
-                                    all_planets.remove(i)
-                            allow = 1
-                            if target in all_planets:
-                                all_planets.remove(target)
-                    stopper = 0
-                my_planets_at = []
-                my_planets = []
-                neutral_planets = []
-                enemy_planets = []
-                other_planets = []
-                maxmass_p = 0
-                target = 0
-                enemy_target = 0
-                neutral_target = 0
+
+                    one_attack_potential += maxmass_p.mass
+                    if len(my_planets) == 0:
+                        stopper = 1
+                        break
+                maxmass = 0
+                if stopper == 0:
+                    for i in my_planets_at:
+                        for k in lines:
+                            if k.planet1 == i:
+                                k.stop()
+                        if i.mass <= 0:
+                            allow = 0
+                        if allow == 1:
+                            i.second_click(target)
+                            if i in all_planets:
+                                all_planets.remove(i)
+                        allow = 1
+                        if target in all_planets:
+                            all_planets.remove(target)
+                stopper = 0
+            my_planets_at = []
+            my_planets = []
+            neutral_planets = []
+            enemy_planets = []
+            other_planets = []
+            maxmass_p = 0
+            target = 0
+            enemy_target = 0
+            neutral_target = 0
 
 
-    def update():
-        """Эта функия отвечает за обновление экрана"""
-        global counter
-        if counter >= 200:
-            counter = 0
-            for i in range(2):
-                II(i + 2)
-        for i in lines:
-            i.grow()
-            i.redraw()
-        for j in planets:
-            j.grow()
-            j.massupdate()
-        counter += 1
-        root.after(10, update)
+def update():
+    """Эта функия отвечает за обновление экрана"""
+    global counter
+    if counter >= 200:
+        counter = 0
+        for i in range(2):
+            II(i + 2)
+    for i in lines:
+        i.grow()
+        i.redraw()
+    for j in planets:
+        j.grow()
+        j.massupdate()
+    counter += 1
+    root.after(10, update)
 
 
-    def main():
-        global planets
-        planets = read_space_objects_data_from_file(r"C:\infa\War_Of__Worlds\Maps\7.txt")
-        canvas.bind('<Button-1>', click)
-        update()
-    main()
-    root.mainloop()
-            
-            
+def main(s0):
+    global planets
+    s = 'C:\Python\War_Of__Worlds\Maps/' + s0 + '.txt'
+    planets = read_space_objects_data_from_file(s)
+    canvas.bind('<Button-1>', click)
+    update()
 
-    '''framelist = []      # List to hold all the frames
-    frame_index = 0     # Frame index
-
-    while True:
-        try:
-            # Read a frame from GIF file
-            part = 'gif -index {}'.format(frame_index)
-            frame = tk.PhotoImage(file='C:\\Users\\Admin\\Desktop\\starwars.gif', format=part)
-        except:
-            last_frame = frame_index - 1    # Save index for last frame
-                break               # Will break when GIF index is reached
-            framelist.append(frame)
-            frame_index += 1        # Next frame index
-
-    def animate(frame_number):
-        if frame_number > last_frame:
-            frame_number = 0
-        label.config(image=framelist[frame_number]) 
-        root.after(50, animate, frame_number+1)
-
-    label = tk.Label(root, bg='#202020')
-    label.pack()
-
-    animate(0)  # Start animation'''
-
-lines = []
-planets = []
-counter = 0
-aggressiveness = 0        
 
 
 lets_play()
+
 
