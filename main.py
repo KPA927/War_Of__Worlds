@@ -1,3 +1,4 @@
+from tkinter import *
 from random import randrange as rnd, choice
 import tkinter as tk
 import math
@@ -5,6 +6,96 @@ import math
 import time
 import socket
 import pickle
+
+def casual_game():
+    first = Toplevel()
+    first.geometry('400x400')
+    first['bg'] = 'grey'
+    header = Label(first,text="Выберите курс", padx=15, pady=10)
+    header.grid(row=0, column=0, sticky=W)
+ 
+    lang = IntVar()
+ 
+    python_checkbutton = Radiobutton(first,text="Python", value=1, variable=lang, padx=15, pady=10)
+    python_checkbutton.grid(row=1, column=0, sticky=W)
+ 
+    javascript_checkbutton = Radiobutton(first,text="JavaScript", value=2, variable=lang, padx=15, pady=10)
+    javascript_checkbutton.grid(row=2, column=0, sticky=W)
+
+    btn_game = Button(first, text="ОК", background="grey", foreground="white", activebackground="red", activeforeground="green",
+            padx="20", pady="8", font="16", command=lets_play)
+    btn_game.place(relx=.5, rely=.2, anchor="c", height=60, width=130, bordermode=OUTSIDE)
+
+
+
+def first_game():
+        first = Toplevel()
+        first.geometry('400x400')
+        first['bg'] = 'grey'
+        Label(first, text="Правила игры...").pack(expand=1)
+        btn_game = Button(first, text="ОК", background="grey", foreground="white", activebackground="red", activeforeground="green",
+            padx="20", pady="8", font="16", command=lets_play)
+        btn_game.place(relx=.5, rely=.2, anchor="c", height=60, width=130, bordermode=OUTSIDE)
+def lets_play():
+root = Tk()
+root.title("Война миров")
+root.geometry("900x900")
+     
+btn1 = Button(text="Начать игру", background="grey", foreground="white", activebackground="red", activeforeground="green",
+                 padx="20", pady="8", font="16", command=casual_game)
+btn1.place(relx=.5, rely=.2, anchor="c", height=60, width=130, bordermode=OUTSIDE)
+
+btn2 = Button(text="Наш проект", background="grey", foreground="white", activebackground="red", activeforeground="green",
+                 padx="20", pady="8", font="16", command=first_game)
+btn2.place(relx=.5, rely=.8, anchor="c", height=60, width=130, bordermode=OUTSIDE)
+
+
+
+'''framelist = []      # List to hold all the frames
+frame_index = 0     # Frame index
+
+while True:
+    try:
+        # Read a frame from GIF file
+        part = 'gif -index {}'.format(frame_index)
+        frame = tk.PhotoImage(file='C:\\Users\\Admin\\Desktop\\starwars.gif', format=part)
+    except:
+        last_frame = frame_index - 1    # Save index for last frame
+        break               # Will break when GIF index is reached
+    framelist.append(frame)
+    frame_index += 1        # Next frame index
+
+def animate(frame_number):
+    if frame_number > last_frame:
+        frame_number = 0
+    label.config(image=framelist[frame_number]) 
+    root.after(50, animate, frame_number+1)
+
+label = tk.Label(root, bg='#202020')
+label.pack()
+
+animate(0)  # Start animation'''
+
+
+    
+
+
+
+
+ 
+
+def _from_rgb(rgb):
+    return "#%02x%02x%02x" % rgb
+
+lines = []
+planets = []
+counter = 0
+aggressiveness = 5
+
+
+
+
+
 
 root = tk.Tk()
 fr = tk.Frame(root)
@@ -15,6 +106,8 @@ canvas.pack(fill=tk.BOTH, expand=1)
 lines = []
 planets = []
 counter = 0
+aggressiveness = 0
+
 
 
 def _from_rgb(rgb):
@@ -48,28 +141,14 @@ class Planet:
         self.highlighting = 0
         self.font = "Times " + str(int(12 * math.sqrt(self.level)))
         self.growing = 0
-        if self.mass <= 235:
-            if self.owner == 1:
-                self.color = _from_rgb((52, 235 - int(self.mass), 235))
-            elif self.owner == 2:
-                self.color = _from_rgb((235, 235 - int(self.mass), 52))
-            elif self.owner == 3:
-                self.color = _from_rgb((52, 235 - int(self.mass), 52))
-            else:
-                self.color = _from_rgb((128, 128, 128))
-        else:
-            if self.owner == 1:
-                self.color = _from_rgb((52, 0, 235))
-            elif self.owner == 2:
-                self.color = _from_rgb((235, 0, 52))
-            elif self.owner == 3:
-                self.color = _from_rgb((52, 0, 52))
-            else:
-                self.color = _from_rgb((128, 128, 128))
         if self.owner == 1:
-            self.mass_limit = 25 * (2 ** self.level)
+            self.color = _from_rgb((52, 235 - int(self.level - 1) * 78, 235))
         elif self.owner == 2:
-            self.mass_limit = 25 * (2 ** self.level)
+            self.color = _from_rgb((235, 235 - int(self.level - 1) * 78, 52))
+        elif self.owner == 3:
+            self.color = _from_rgb((52, 235 - int(self.level - 1) * 78, 52))
+        else:
+            self.color = _from_rgb((128, 128, 128))
         self.id = canvas.create_oval(
             self.x - self.r,
             self.y - self.r,
@@ -122,10 +201,28 @@ class Planet:
             canvas.delete(self.text)
             self.text = canvas.create_text(self.x, self.y, text=int(self.mass), fill='white', font=self.font)
             self.growing -= 0.1
-        else:
+        elif 0 >= self.growing:
             self.font = "Times " + str(int(12 * math.sqrt(self.level)))
+            if self.owner == 1:
+                self.color = _from_rgb((52, 235 - int(self.level - 1) * 78, 235))
+            elif self.owner == 2:
+                self.color = _from_rgb((235, 235 - int(self.level - 1) * 78, 52))
+            elif self.owner == 3:
+                self.color = _from_rgb((52, 235 - int(self.level - 1) * 78, 52))
+            else:
+                self.color = _from_rgb((128, 128, 128))
+            canvas.delete(self.id)
+            self.id = canvas.create_oval(
+                self.x - self.r,
+                self.y - self.r,
+                self.x + self.r,
+                self.y + self.r,
+                fill=self.color,
+                outline='grey'
+            )
             canvas.delete(self.text)
             self.text = canvas.create_text(self.x, self.y, text=int(self.mass), fill='white', font=self.font)
+            self.growing -= 0.1
 
     def massupdate(self):
         if self.mass < 25 * (2 ** self.level):
@@ -144,27 +241,6 @@ class Planet:
             outline='grey'
         )
         self.text = canvas.create_text(self.x, self.y, text=int(self.mass), fill='white', font=self.font)
-       
-    def colorupdate(self):
-        if self.mass <= 235:
-            if self.owner == 1:
-                self.color = _from_rgb((52, 235 - int(self.mass), 235))
-            elif self.owner == 2:
-                self.color = _from_rgb((235, 235 - int(self.mass), 52))
-            elif self.owner == 3:
-                self.color = _from_rgb((52, 235 - int(self.mass), 52))
-            else:
-                self.color = _from_rgb((128, 128, 128))
-        else:
-            if self.owner == 1:
-                self.color = _from_rgb((52, 0, 235))
-            elif self.owner == 2:
-                self.color = _from_rgb((235, 0, 52))
-            elif self.owner == 3:
-                self.color = _from_rgb((52, 0, 52))
-            else:
-                self.color = _from_rgb((128, 128, 128))
-        self.redraw()
 
 
 class Line:
@@ -251,7 +327,6 @@ class Line:
                 self.begin = 0
             else:
                 self.finish()
-
         self.update_mass()
 
     def redraw(self):
@@ -282,15 +357,16 @@ class Line:
             self.capture(self.planet2)
         self.update()
 
-    def capture(self, other):
+
+    def capture(self):
         self.planet2.color = self.color
         self.planet2.owner = self.o_start
         self.planet2.level = 1
         self.planet2.r = 17
         self.planet2.mass = 1
         self.planet2.redraw()
-        other.highlighting = 0
-        canvas.delete(other.id1)
+        self.planet2.highlighting = 0
+        canvas.delete(self.planet2.id1)
 
     def finish(self):
         canvas.delete(self.id)
@@ -394,10 +470,14 @@ def parse_planet_parameters(line):
 def II(me):
     """Эта функция отвечает за поведение вражеских планет"""
     global planets, aggressiveness
+    all_planets = []
+    for i in planets:
+        all_planets.append(i)
     my_planets = []
     other_planets = []
     enemy_planets = []
     neutral_planets = []
+    my_planets_at = []
     allow = 1
     target = 0
     enemy_target = 0
@@ -405,72 +485,109 @@ def II(me):
     enemy_length = 5000
     neutral_length = 5000
     exit = 0
-    allow2 = 1
-    attak_potensial = 0
-    for i in planets:
-        if i.owner == me:
-            if i.mass >= 25 * (2 ** i.level):
-                i.second_click(i)
-            else:
-                my_planets.append(i)
-        else:
-            other_planets.append(i)
-            if i.owner == 0:
-                neutral_planets.append(i)
-            else:
-                enemy_planets.append(i)
-    if len(my_planets) != 0 and len(other_planets) != 0:
-        for i in my_planets:
-            attak_potensial += i.mass
-        if len(enemy_planets) != 0:
-            while exit <= len(enemy_planets):
-                for i in my_planets:
-                    for j in enemy_planets:
-                        if (i.x - j.x) ** 2 + (i.y - j.y) ** 2 <= enemy_length ** 2:
-                            enemy_length = ((i.x - j.x) ** 2 + (i.y - j.y) ** 2) ** 0.5
-                            target1 = j
-                if target1.mass + 3 < attak_potensial:
-                    enemy_target = target1
-                    break
+    attack_potential = 0
+    maxmass = 0
+    maxmass_p = 0
+    for bl in range (10):
+        for i in all_planets:
+            if i.owner == me:
+                if i.mass >= 25 * (2 ** i.level) and i.growing <= 0:
+                    i.second_click(i)
                 else:
-                    enemy_planets.remove(target1)
-                    exit += 1
-                enemy_length = 5000
-        if len(neutral_planets) != 0:
-            while exit <= len(neutral_planets):
-                for i in my_planets:
-                    for j in neutral_planets:
-                        if (i.x - j.x) ** 2 + (i.y - j.y) ** 2 <= neutral_length ** 2:
-                            neutral_length = ((i.x - j.x) ** 2 + (i.y - j.y) ** 2) ** 0.5
-                            target1 = j
-                if target1.mass + 3 < attak_potensial:
-                    neutral_target = target1
-                    break
-                else:
-                    neutral_planets.remove(target1)
-                    exit += 1
-                neutral_length = 5000
-        if neutral_target == 0:
-            target = enemy_target
-        elif enemy_target == 0:
-            target = neutral_target
-        elif neutral_target == 0 and enemy_target == 0:
-            pass
-        else:
-            if neutral_length * (1 + aggressiveness * 0.3) < enemy_length:
-                target = neutral_target
+                    if i.growing <= 0:
+                        my_planets.append(i)
             else:
-                target = enemy_target
-        if target != 0:
+                other_planets.append(i)
+                if i.owner == 0:
+                    neutral_planets.append(i)
+                else:
+                    enemy_planets.append(i)
+        if len(my_planets) != 0 and len(other_planets) != 0:
             for i in my_planets:
-                for k in lines:
-                    if k.planet1 == i:
+                attack_potential += i.mass
+            if len(enemy_planets) != 0:
+                while exit <= len(enemy_planets):
+                    for i in my_planets:
+                        for j in enemy_planets:
+                            if (i.x - j.x) ** 2 + (i.y - j.y) ** 2 <= enemy_length ** 2:
+                                enemy_length = ((i.x - j.x) ** 2 + (i.y - j.y) ** 2) ** 0.5
+                                target1 = j
+                    if target1.mass + 3 < attack_potential:
+                        enemy_target = target1
+                        break
+                    else:
+                        enemy_planets.remove(target1)
+                        exit += 1
+                    enemy_length = 5000
+            if len(neutral_planets) != 0:
+                while exit <= len(neutral_planets):
+                    for i in my_planets:
+                        for j in neutral_planets:
+                            if (i.x - j.x) ** 2 + (i.y - j.y) ** 2 <= neutral_length ** 2:
+                                neutral_length = ((i.x - j.x) ** 2 + (i.y - j.y) ** 2) ** 0.5
+                                target1 = j
+                    if target1.mass + 3 < attack_potential:
+                        neutral_target = target1
+                        break
+                    else:
+                        neutral_planets.remove(target1)
+                        exit += 1
+                    neutral_length = 5000
+            if neutral_target == 0:
+                target = enemy_target
+            elif enemy_target == 0:
+                target = neutral_target
+            elif neutral_target == 0 and enemy_target == 0:
+                pass
+            else:
+                if neutral_length * (1 + aggressiveness * 0.3) < enemy_length:
+                    target = neutral_target
+                else:
+                    target = enemy_target
+            for i in my_planets:
+                if i.mass > maxmass:
+                    maxmass = i.mass
+                    maxmass_p = i
+            maxmass = 500
+            my_planets.remove(maxmass_p)
+            my_planets_at.append(maxmass_p)
+            one_attack_potential = maxmass_p.mass
+            while target.mass + 3 >= one_attack_potential:
+                for i in my_planets:
+                    if i.mass <= maxmass:
+                        maxmass = i.mass
+                        maxmass_p = i
+                if maxmass_p in my_planets:
+                    my_planets.remove(maxmass_p)
+                my_planets_at.append(maxmass_p)
+                maxmass = 500
+                one_attack_potential += maxmass_p.mass
+                if len(my_planets) == 0:
+                    break
+            maxmass = 0
+            if target != 0:
+                for i in my_planets_at:
+                    for k in lines:
+                        if k.planet1 == i:
+                            allow = 0
+                    if i.mass <= 0:
                         allow = 0
-                if i.mass <= 0:
-                    allow = 0
-                if allow == 1:
-                    i.second_click(target)
-                allow = 1
+                    if allow == 1:
+                        i.second_click(target)
+                        if i in all_planets:
+                            all_planets.remove(i)
+                    allow = 1
+                    if target in all_planets:
+                        all_planets.remove(target)
+            my_planets_at = []
+            my_planets = []
+            neutral_planets = []
+            enemy_planets = []
+            other_planets = []
+            maxmass_p = 0
+            target = 0
+            enemy_target = 0
+            neutral_target = 0
 
 
 def update():
@@ -486,8 +603,6 @@ def update():
     for j in planets:
         j.grow()
         j.massupdate()
-        if counter % 200 == 0:
-            j.colorupdate()
     counter += 1
     root.after(10, update)
 
