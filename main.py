@@ -1,3 +1,4 @@
+# coding=utf-8
 from tkinter import *
 from random import randrange as rnd, choice
 import tkinter as tk
@@ -37,64 +38,44 @@ def first_game():
             padx="20", pady="8", font="16", command=lets_play)
         btn_game.place(relx=.5, rely=.2, anchor="c", height=60, width=130, bordermode=OUTSIDE)
 def lets_play():
-root = Tk()
-root.title("Война миров")
-root.geometry("900x900")
-     
-btn1 = Button(text="Начать игру", background="grey", foreground="white", activebackground="red", activeforeground="green",
-                 padx="20", pady="8", font="16", command=casual_game)
-btn1.place(relx=.5, rely=.2, anchor="c", height=60, width=130, bordermode=OUTSIDE)
+    root = Tk()
+    root.title("Война миров")
+    root.geometry("900x900")
 
-btn2 = Button(text="Наш проект", background="grey", foreground="white", activebackground="red", activeforeground="green",
-                 padx="20", pady="8", font="16", command=first_game)
-btn2.place(relx=.5, rely=.8, anchor="c", height=60, width=130, bordermode=OUTSIDE)
+    btn1 = Button(text="Начать игру", background="grey", foreground="white", activebackground="red",
+                  activeforeground="green",
+                  padx="20", pady="8", font="16", command=casual_game)
+    btn1.place(relx=.5, rely=.2, anchor="c", height=60, width=130, bordermode=OUTSIDE)
 
+    btn2 = Button(text="Наш проект", background="grey", foreground="white", activebackground="red",
+                  activeforeground="green",
+                  padx="20", pady="8", font="16", command=first_game)
+    btn2.place(relx=.5, rely=.8, anchor="c", height=60, width=130, bordermode=OUTSIDE)
 
+    '''framelist = []      # List to hold all the frames
+    frame_index = 0     # Frame index
 
-'''framelist = []      # List to hold all the frames
-frame_index = 0     # Frame index
+    while True:
+        try:
+            # Read a frame from GIF file
+            part = 'gif -index {}'.format(frame_index)
+            frame = tk.PhotoImage(file='C:\\Users\\Admin\\Desktop\\starwars.gif', format=part)
+        except:
+            last_frame = frame_index - 1    # Save index for last frame
+            break               # Will break when GIF index is reached
+        framelist.append(frame)
+        frame_index += 1        # Next frame index
 
-while True:
-    try:
-        # Read a frame from GIF file
-        part = 'gif -index {}'.format(frame_index)
-        frame = tk.PhotoImage(file='C:\\Users\\Admin\\Desktop\\starwars.gif', format=part)
-    except:
-        last_frame = frame_index - 1    # Save index for last frame
-        break               # Will break when GIF index is reached
-    framelist.append(frame)
-    frame_index += 1        # Next frame index
+    def animate(frame_number):
+        if frame_number > last_frame:
+            frame_number = 0
+        label.config(image=framelist[frame_number]) 
+        root.after(50, animate, frame_number+1)
 
-def animate(frame_number):
-    if frame_number > last_frame:
-        frame_number = 0
-    label.config(image=framelist[frame_number]) 
-    root.after(50, animate, frame_number+1)
+    label = tk.Label(root, bg='#202020')
+    label.pack()
 
-label = tk.Label(root, bg='#202020')
-label.pack()
-
-animate(0)  # Start animation'''
-
-
-    
-
-
-
-
- 
-
-def _from_rgb(rgb):
-    return "#%02x%02x%02x" % rgb
-
-lines = []
-planets = []
-counter = 0
-aggressiveness = 5
-
-
-
-
+    animate(0)  # Start animation'''
 
 
 root = tk.Tk()
@@ -270,7 +251,7 @@ class Line:
         self.max = 0
         self.count1 = 0
         self.count2 = 0
-        self.velocity = 10
+        self.velocity = 30
         self.r = ((self.x1 - self.x2) ** 2 + (self.y1 - self.y2) ** 2) ** 0.5
         self.max = int(self.r / self.velocity)
 
@@ -331,7 +312,7 @@ class Line:
         canvas.coords(
             self.id,
             *self.get_line_begin(),
-            *self.get_line_end(),
+            *self.get_line_end()
         )
 
     def update_mass(self):
@@ -349,10 +330,12 @@ class Line:
             else:
                 self.planet2.mass -= 0.1
 
+
         if self.planet1.owner != self.owner:
             self.stop()
+
         if self.planet2.mass <= 0:
-            self.capture(self.planet2)
+            self.capture()
         self.update()
 
 
@@ -373,8 +356,9 @@ class Line:
         lines.remove(self)
 
     def stop(self):
-        self.begin = 0
-        self.Num = self.count1
+        if self.begin != 0:
+            self.Num = self.count1
+            self.begin = 0
 
     def update(self):
         self.x1 = self.planet1.x + self.planet1.r * math.cos(self.an)
@@ -384,11 +368,14 @@ class Line:
         self.r = ((self.x1 - self.x2) ** 2 + (self.y1 - self.y2) ** 2) ** 0.5
         self.redraw()
 
-
 def click(event):
-    """Эта функция реагирует на нажатие ллевой кнопкой мыши игроком, позволяет
-    выделить планету, провести атаку, или сделать апгрейд"""
+    """
+    Эта функция реагирует на нажатие ллевой кнопкой мыши игроком, позволяет
+    выделить планету, провести атаку, или сделать апгрейд
+
+    """
     sec_click = 0
+    space_click = 1
     i = 0
     allow = 1
     for i in planets:
@@ -401,15 +388,20 @@ def click(event):
             if ((event.x - j.x) ** 2 + (event.y - j.y) ** 2) <= (j.r) ** 2:
                 for k in lines:
                     if k.planet1 == i:
-                        allow = 0
+                        k.stop()
                 if i.mass <= 0:
                     allow = 0
                 if allow == 1:
                     i.second_click(j)
+                    space_click = 0
                     break
                 allow = 1
         i.highlighting = 0
         canvas.delete(i.id1)
+        if space_click == 1:
+            for k in lines:
+                if k.planet1 == i:
+                    k.stop()
     else:
         for j in planets:
             if (((event.x - j.x) ** 2 + (event.y - j.y) ** 2) <= (j.r) ** 2) and (j.owner == 1):
@@ -417,7 +409,7 @@ def click(event):
 
 
 def read_space_objects_data_from_file(input_filename):
-    global aggresiveness
+    global aggressiveness
     """Cчитывает данные о космических объектах из файла, создаёт сами объекты
     и вызывает создание их графических образов
 
@@ -435,7 +427,7 @@ def read_space_objects_data_from_file(input_filename):
                 p = parse_planet_parameters(line)
                 objects.append(p)
             else:
-                aggresiveness = int(line[0])
+                aggressiveness = int(object_type)
     return objects
 
 
@@ -465,7 +457,7 @@ def parse_planet_parameters(line):
 
 
 def II(me):
-    """Эта функция отвечает за поведение вражеских планет"""
+    '''Эта функция отвечает за поведение вражеских планет'''
     global planets, aggressiveness
     all_planets = []
     for i in planets:
@@ -477,6 +469,7 @@ def II(me):
     my_planets_at = []
     allow = 1
     target = 0
+    stopper = 0
     enemy_target = 0
     neutral_target = 0
     enemy_length = 5000
@@ -512,7 +505,7 @@ def II(me):
                     if target1.mass + 3 < attack_potential:
                         enemy_target = target1
                         break
-                    else:
+                    elif target1 in enemy_planets:
                         enemy_planets.remove(target1)
                         exit += 1
                     enemy_length = 5000
@@ -526,7 +519,7 @@ def II(me):
                     if target1.mass + 3 < attack_potential:
                         neutral_target = target1
                         break
-                    else:
+                    elif target1 in neutral_planets:
                         neutral_planets.remove(target1)
                         exit += 1
                     neutral_length = 5000
@@ -541,41 +534,44 @@ def II(me):
                     target = neutral_target
                 else:
                     target = enemy_target
-            for i in my_planets:
-                if i.mass > maxmass:
-                    maxmass = i.mass
-                    maxmass_p = i
-            maxmass = 500
-            my_planets.remove(maxmass_p)
-            my_planets_at.append(maxmass_p)
-            one_attack_potential = maxmass_p.mass
-            while target.mass + 3 >= one_attack_potential:
+            if target != 0:
                 for i in my_planets:
-                    if i.mass <= maxmass:
+                    if i.mass > maxmass:
                         maxmass = i.mass
                         maxmass_p = i
-                if maxmass_p in my_planets:
-                    my_planets.remove(maxmass_p)
-                my_planets_at.append(maxmass_p)
                 maxmass = 500
-                one_attack_potential += maxmass_p.mass
-                if len(my_planets) == 0:
-                    break
-            maxmass = 0
-            if target != 0:
-                for i in my_planets_at:
-                    for k in lines:
-                        if k.planet1 == i:
+                my_planets.remove(maxmass_p)
+                my_planets_at.append(maxmass_p)
+                one_attack_potential = maxmass_p.mass
+                while target.mass + 3 >= one_attack_potential:
+                    for i in my_planets:
+                        if i.mass <= maxmass:
+                            maxmass = i.mass
+                            maxmass_p = i
+                    if maxmass_p in my_planets:
+                        my_planets.remove(maxmass_p)
+                    my_planets_at.append(maxmass_p)
+                    maxmass = 500
+                    one_attack_potential += maxmass_p.mass
+                    if len(my_planets) == 0:
+                        stopper = 1
+                        break
+                maxmass = 0
+                if stopper == 0:
+                    for i in my_planets_at:
+                        for k in lines:
+                            if k.planet1 == i:
+                                k.stop()
+                        if i.mass <= 0:
                             allow = 0
-                    if i.mass <= 0:
-                        allow = 0
-                    if allow == 1:
-                        i.second_click(target)
-                        if i in all_planets:
-                            all_planets.remove(i)
-                    allow = 1
-                    if target in all_planets:
-                        all_planets.remove(target)
+                        if allow == 1:
+                            i.second_click(target)
+                            if i in all_planets:
+                                all_planets.remove(i)
+                        allow = 1
+                        if target in all_planets:
+                            all_planets.remove(target)
+                stopper = 0
             my_planets_at = []
             my_planets = []
             neutral_planets = []
@@ -590,7 +586,7 @@ def II(me):
 def update():
     """Эта функия отвечает за обновление экрана"""
     global counter
-    if counter >= 500:
+    if counter >= 200:
         counter = 0
         for i in range(2):
             II(i + 2)
@@ -603,9 +599,10 @@ def update():
     counter += 1
     root.after(10, update)
 
+
 def main():
     global planets
-    planets = read_space_objects_data_from_file(r"C:\Python\War_Of__Worlds\Maps\2.txt")
+    planets = read_space_objects_data_from_file(r"C:\Users\acer\War_Of__Worlds\Maps\7.txt")
     canvas.bind('<Button-1>', click)
     update()
 
