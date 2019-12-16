@@ -1,0 +1,13 @@
+0
+planet 	10 1100 673 0 1 
+planet	10 800 500 0 1
+planet	10 1100 327 0 1
+planet  10  900 673 0 1
+planet  10  900 327 0 1
+planet  10  1200 500 0 1
+planet  10  827 600 0 1
+planet  50  1173 400 2 2
+planet  50  827 400 3 2
+planet  10  1173 600 0 1
+planet  80  1000 700 1 2
+planet  10  1000 300 0 1
