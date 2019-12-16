@@ -8,36 +8,51 @@ import time
 import socket
 import pickle
 
+root = tk.Tk()
+fr = tk.Frame(root)
+root.geometry('1920x1080')
+canvas = tk.Canvas(root, bg='black')
+canvas.focus_set()
+canvas.pack(fill=tk.BOTH, expand=1)
+lines = []
+planets = []
+counter = 0
+aggressiveness = 0
+
+
 def casual_game():
     first = Toplevel()
     first.geometry('400x400')
     first['bg'] = 'grey'
-    header = Label(first,text="Выберите курс", padx=15, pady=10)
+    header = Label(first, text="Выберите курс", padx=15, pady=10)
     header.grid(row=0, column=0, sticky=W)
- 
+
     lang = IntVar()
- 
-    python_checkbutton = Radiobutton(first,text="Python", value=1, variable=lang, padx=15, pady=10)
+
+    python_checkbutton = Radiobutton(first, text="Python", value=1, variable=lang, padx=15, pady=10)
     python_checkbutton.grid(row=1, column=0, sticky=W)
- 
-    javascript_checkbutton = Radiobutton(first,text="JavaScript", value=2, variable=lang, padx=15, pady=10)
+
+    javascript_checkbutton = Radiobutton(first, text="JavaScript", value=2, variable=lang, padx=15, pady=10)
     javascript_checkbutton.grid(row=2, column=0, sticky=W)
 
-    btn_game = Button(first, text="ОК", background="grey", foreground="white", activebackground="red", activeforeground="green",
-            padx="20", pady="8", font="16", command=lets_play)
+    btn_game = Button(first, text="ОК", background="grey", foreground="white", activebackground="red",
+                      activeforeground="green",
+                      padx="20", pady="8", font="16", command=lets_play)
     btn_game.place(relx=.5, rely=.2, anchor="c", height=60, width=130, bordermode=OUTSIDE)
     main('7')
 
 
 def first_game():
-        first = Toplevel()
-        first.geometry('400x400')
-        first['bg'] = 'grey'
-        Label(first, text="Правила игры...").pack(expand=1)
-        btn_game = Button(first, text="ОК", background="grey", foreground="white", activebackground="red", activeforeground="green",
-            padx="20", pady="8", font="16", command=lets_play)
-        btn_game.place(relx=.5, rely=.2, anchor="c", height=60, width=130, bordermode=OUTSIDE)
-        main('How_to_play')
+    first = Toplevel()
+    first.geometry('400x400')
+    first['bg'] = 'grey'
+    Label(first, text="Правила игры\\"
+                      "").pack(expand=1)
+    btn_game = Button(first, text="ОК", background="grey", foreground="white", activebackground="red",
+                      activeforeground="green",
+                      padx="20", pady="8", font="16", command=lets_play)
+    btn_game.place(relx=.5, rely=.2, anchor="c", height=60, width=130, bordermode=OUTSIDE)
+    main('How_to_play')
 
 
 def _from_rgb(rgb):
@@ -83,18 +98,6 @@ def lets_play():
     label.pack()
 
     animate(0)  # Start animation'''
-
-
-root = tk.Tk()
-fr = tk.Frame(root)
-root.geometry('1920x1080')
-canvas = tk.Canvas(root, bg='black')
-canvas.focus_set()
-canvas.pack(fill=tk.BOTH, expand=1)
-lines = []
-planets = []
-counter = 0
-aggressiveness = 0
 
 
 class Planet:
