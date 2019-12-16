@@ -37,17 +37,19 @@ def first_game():
             padx="20", pady="8", font="16", command=lets_play)
         btn_game.place(relx=.5, rely=.2, anchor="c", height=60, width=130, bordermode=OUTSIDE)
 def lets_play():
-root = Tk()
-root.title("Война миров")
-root.geometry("900x900")
-     
-btn1 = Button(text="Начать игру", background="grey", foreground="white", activebackground="red", activeforeground="green",
-                 padx="20", pady="8", font="16", command=casual_game)
-btn1.place(relx=.5, rely=.2, anchor="c", height=60, width=130, bordermode=OUTSIDE)
+    root = Tk()
+    root.title("Война миров")
+    root.geometry("900x900")
 
-btn2 = Button(text="Наш проект", background="grey", foreground="white", activebackground="red", activeforeground="green",
-                 padx="20", pady="8", font="16", command=first_game)
-btn2.place(relx=.5, rely=.8, anchor="c", height=60, width=130, bordermode=OUTSIDE)
+    btn1 = Button(text="Начать игру", background="grey", foreground="white", activebackground="red",
+                  activeforeground="green",
+                  padx="20", pady="8", font="16", command=casual_game)
+    btn1.place(relx=.5, rely=.2, anchor="c", height=60, width=130, bordermode=OUTSIDE)
+
+    btn2 = Button(text="Наш проект", background="grey", foreground="white", activebackground="red",
+                  activeforeground="green",
+                  padx="20", pady="8", font="16", command=first_game)
+    btn2.place(relx=.5, rely=.8, anchor="c", height=60, width=130, bordermode=OUTSIDE)
 
 
 
@@ -86,6 +88,7 @@ animate(0)  # Start animation'''
 
 def _from_rgb(rgb):
     return "#%02x%02x%02x" % rgb
+
 
 lines = []
 planets = []
