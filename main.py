@@ -88,6 +88,8 @@ lines = []
 planets = []
 counter = 0
 aggressiveness = 0
+flag_win = [0, 0]
+flag_lose = 0
 
 
 
@@ -456,6 +458,17 @@ def parse_planet_parameters(line):
     return Planet(parameter_1, parameter_2, parameter_3, parameter_4, parameter_5)
 
 
+class App():
+    def __init__(self):
+        self.root = Tkinter.Tk()
+        button = Tkinter.Button(self.root, text = 'root quit', command=self.quit)
+        button.pack()
+        self.root.mainloop()
+
+    def quit(self):
+        self.root.destroy()
+
+
 def II(me):
     '''Эта функция отвечает за поведение вражеских планет'''
     global planets, aggressiveness
@@ -467,6 +480,7 @@ def II(me):
     enemy_planets = []
     neutral_planets = []
     my_planets_at = []
+    player_planets = []
     allow = 1
     target = 0
     stopper = 0
@@ -583,9 +597,16 @@ def II(me):
             neutral_target = 0
 
 
+def fin():
+    time.sleep(3)
+    root.destroy()
+
+
 def update():
     """Эта функия отвечает за обновление экрана"""
-    global counter
+    global counter, flag_lose, flag_win
+    player_planets = 0
+    II_planets = 0
     if counter >= 200:
         counter = 0
         for i in range(2):
@@ -596,8 +617,18 @@ def update():
     for j in planets:
         j.grow()
         j.massupdate()
+        if j.owner == 1:
+            player_planets += 1
+        if j.owner == 2 or j.owner == 3:
+            II_planets += 1
+    if player_planets == 0:
+        canvas.create_text(1000, 500, text='YOU LOSE', fill='white', font="Times 60")
+        root.after(10, fin)
+    if II_planets == 0:
+        canvas.create_text(1000, 500, text='YOU WIN', fill='white', font="Times 60")
+        root.after(10, fin)
     counter += 1
-    root.after(10, update)
+    root.after(1, update)
 
 
 def main():
