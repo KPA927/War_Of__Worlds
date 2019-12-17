@@ -4,6 +4,7 @@ from tkinter import messagebox
 from random import randrange as rnd, choice
 import tkinter as tk
 import math
+from PIL import Image, ImageTk
 #from input_map import read_space_objects_data_from_file as read
 import time
 import socket
@@ -14,6 +15,8 @@ lines = []
 planets = []
 counter = 0
 aggressiveness = 0
+flag_win = [0, 0]
+flag_lose = 0
 
 
 def casual_game():
@@ -231,7 +234,7 @@ def game():
                 outline='grey'
             )
             self.text = canvas.create_text(self.x, self.y, text=int(self.mass), fill='white', font=self.font)
-
+            
 
     class Line:
         """Этот класс овечает за отрисовку линий,
@@ -412,85 +415,119 @@ def game():
                 for k in lines:
                     if k.planet1 == i:
                         k.stop()
-        else:
-            for j in planets:
-                if (((event.x - j.x) ** 2 + (event.y - j.y) ** 2) <= (j.r) ** 2) and (j.owner == 1):
-                    j.first_click()
+                if i.mass <= 0:
+                    allow = 0
+                if allow == 1:
+                    i.second_click(j)
+                    space_click = 0
+                    break
+                allow = 1
+        i.highlighting = 0
+        canvas.delete(i.id1)
+        if space_click == 1:
+            for k in lines:
+                if k.planet1 == i:
+                    k.stop()
+    else:
+        for j in planets:
+            if (((event.x - j.x) ** 2 + (event.y - j.y) ** 2) <= (j.r) ** 2) and (j.owner == 1):
+                j.first_click()
 
 
-    def read_space_objects_data_from_file(input_filename):
-        global aggressiveness
-        """Cчитывает данные о космических объектах из файла, создаёт сами объекты
-        и вызывает создание их графических образов
-        Параметры:
-        **input_filename** — имя входного файла
-        """
-        objects = []
-        with open(input_filename) as input_file:
-            for line in input_file:
-                if len(line.strip()) == 0 or line[0] == '#':
-                    continue  # пустые строки и строки-комментарии пропускаем
-                object_type = line.split()[0].lower()
-                if object_type == "planet":
-                    p = parse_planet_parameters(line)
-                    objects.append(p)
+def read_space_objects_data_from_file(input_filename):
+    global aggressiveness
+    """Cчитывает данные о космических объектах из файла, создаёт сами объекты
+    и вызывает создание их графических образов
+
+    Параметры:
+
+    **input_filename** — имя входного файла
+    """
+    objects = []
+    with open(input_filename) as input_file:
+        for line in input_file:
+            if len(line.strip()) == 0 or line[0] == '#':
+                continue  # пустые строки и строки-комментарии пропускаем
+            object_type = line.split()[0].lower()
+            if object_type == "planet":
+                p = parse_planet_parameters(line)
+                objects.append(p)
+            else:
+                aggressiveness = int(object_type)
+    return objects
+
+
+def parse_planet_parameters(line):
+    """Считывает данные о планете из строки.
+    Предполагается такая строка:
+    Входная строка должна иметь слеюущий формат:
+    Planet <масса> <x> <y> <пользователь> <уровень>
+
+    Здесь (x, y) — координаты планеты.
+    Пример строки:
+    planet 10 500 400 1 2
+
+    Параметры:
+
+    **line** — строка с описание планеты.
+    **planet** — объект планеты.
+    """
+    line = line.split()
+
+    parameter_1 = int(line[1])
+    parameter_2 = int(line[2])
+    parameter_3 = int(line[3])
+    parameter_4 = int(line[4])
+    parameter_5 = int(line[5])
+    return Planet(parameter_1, parameter_2, parameter_3, parameter_4, parameter_5)
+
+
+class App():
+    def __init__(self):
+        self.root = Tkinter.Tk()
+        button = Tkinter.Button(self.root, text = 'root quit', command=self.quit)
+        button.pack()
+        self.root.mainloop()
+
+    def quit(self):
+        self.root.destroy()
+
+
+def II(me):
+    '''Эта функция отвечает за поведение вражеских планет'''
+    global planets, aggressiveness
+    all_planets = []
+    for i in planets:
+        all_planets.append(i)
+    my_planets = []
+    other_planets = []
+    enemy_planets = []
+    neutral_planets = []
+    my_planets_at = []
+    player_planets = []
+    allow = 1
+    target = 0
+    stopper = 0
+    enemy_target = 0
+    neutral_target = 0
+    enemy_length = 5000
+    neutral_length = 5000
+    exit = 0
+    attack_potential = 0
+    maxmass = 0
+    maxmass_p = 0
+    for bl in range (10):
+        for i in all_planets:
+            if i.owner == me:
+                if i.mass >= 25 * (2 ** i.level) and i.growing <= 0:
+                    i.second_click(i)
                 else:
-                    aggressiveness = int(object_type)
-        return objects
-
-
-    def parse_planet_parameters(line):
-        """Считывает данные о планете из строки.
-        Предполагается такая строка:
-        Входная строка должна иметь слеюущий формат:
-        Planet <масса> <x> <y> <пользователь> <уровень>
-        Здесь (x, y) — координаты планеты.
-        Пример строки:
-        planet 10 500 400 1 2
-        Параметры:
-        **line** — строка с описание планеты.
-        **planet** — объект планеты.
-        """
-        line = line.split()
-
-        parameter_1 = int(line[1])
-        parameter_2 = int(line[2])
-        parameter_3 = int(line[3])
-        parameter_4 = int(line[4])
-        parameter_5 = int(line[5])
-        return Planet(parameter_1, parameter_2, parameter_3, parameter_4, parameter_5)
-
-
-    def II(me):
-        '''Эта функция отвечает за поведение вражеских планет'''
-        global planets, aggressiveness
-        all_planets = []
-        for i in planets:
-            all_planets.append(i)
-        my_planets = []
-        other_planets = []
-        enemy_planets = []
-        neutral_planets = []
-        my_planets_at = []
-        allow = 1
-        target = 0
-        stopper = 0
-        enemy_target = 0
-        neutral_target = 0
-        enemy_length = 5000
-        neutral_length = 5000
-        exit = 0
-        attack_potential = 0
-        maxmass = 0
-        maxmass_p = 0
-        for bl in range (10):
-            for i in all_planets:
-                if i.owner == me:
-                    if i.mass >= 25 * (2 ** i.level) and i.growing <= 0:
-                        i.second_click(i)
-                    else:
-                        if i.growing <= 0:
-                            my_planets.append(i)
+                    if i.growing <= 0:
+                        my_planets.append(i)
+            else:
+                other_planets.append(i)
+                if i.owner == 0:
+                    neutral_planets.append(i)
                 else:
                     other_planets.append(i)
                     if i.owner == 0:
@@ -614,15 +651,9 @@ def game():
     main(str(m))
     root.mainloop()
 
-    
-
-    
-    
-        
-
-
 
 
 lets_play()
+
 
 
