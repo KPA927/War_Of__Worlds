@@ -429,6 +429,7 @@ def click(event):
 
                 for k in lines:
                     if k.planet1 == i:
+                        k.stop()
                 if i.mass <= 0:
                     allow = 0
                 if allow == 1:
