@@ -18,7 +18,13 @@ lines = []
 planets = []
 counter = 0
 aggressiveness = 0
+flag_win = [0, 0]
+flag_lose = 0
 
+
+
+def _from_rgb(rgb):
+    return "#%02x%02x%02x" % rgb
 
 def casual_game():
     first = Toplevel()
@@ -423,43 +429,119 @@ def click(event):
 
                 for k in lines:
                     if k.planet1 == i:
-                        k.stop()
-        else:
-            for j in planets:
-                if (((event.x - j.x) ** 2 + (event.y - j.y) ** 2) <= (j.r) ** 2) and (j.owner == 1):
-                    j.first_click()
+                if i.mass <= 0:
+                    allow = 0
+                if allow == 1:
+                    i.second_click(j)
+                    space_click = 0
+                    break
+                allow = 1
+        i.highlighting = 0
+        canvas.delete(i.id1)
+        if space_click == 1:
+            for k in lines:
+                if k.planet1 == i:
+                    k.stop()
+    else:
+        for j in planets:
+            if (((event.x - j.x) ** 2 + (event.y - j.y) ** 2) <= (j.r) ** 2) and (j.owner == 1):
+                j.first_click()
 
 
-    def II(me):
-        '''Эта функция отвечает за поведение вражеских планет'''
-        global planets, aggressiveness
-        all_planets = []
-        for i in planets:
-            all_planets.append(i)
-        my_planets = []
-        other_planets = []
-        enemy_planets = []
-        neutral_planets = []
-        my_planets_at = []
-        allow = 1
-        target = 0
-        stopper = 0
-        enemy_target = 0
-        neutral_target = 0
-        enemy_length = 5000
-        neutral_length = 5000
-        exit = 0
-        attack_potential = 0
-        maxmass = 0
-        maxmass_p = 0
-        for bl in range (10):
-            for i in all_planets:
-                if i.owner == me:
-                    if i.mass >= 25 * (2 ** i.level) and i.growing <= 0:
-                        i.second_click(i)
-                    else:
-                        if i.growing <= 0:
-                            my_planets.append(i)
+def read_space_objects_data_from_file(input_filename):
+    global aggressiveness
+    """Cчитывает данные о космических объектах из файла, создаёт сами объекты
+    и вызывает создание их графических образов
+
+    Параметры:
+
+    **input_filename** — имя входного файла
+    """
+    objects = []
+    with open(input_filename) as input_file:
+        for line in input_file:
+            if len(line.strip()) == 0 or line[0] == '#':
+                continue  # пустые строки и строки-комментарии пропускаем
+            object_type = line.split()[0].lower()
+            if object_type == "planet":
+                p = parse_planet_parameters(line)
+                objects.append(p)
+            else:
+                aggressiveness = int(object_type)
+    return objects
+
+
+def parse_planet_parameters(line):
+    """Считывает данные о планете из строки.
+    Предполагается такая строка:
+    Входная строка должна иметь слеюущий формат:
+    Planet <масса> <x> <y> <пользователь> <уровень>
+
+    Здесь (x, y) — координаты планеты.
+    Пример строки:
+    planet 10 500 400 1 2
+
+    Параметры:
+
+    **line** — строка с описание планеты.
+    **planet** — объект планеты.
+    """
+    line = line.split()
+
+    parameter_1 = int(line[1])
+    parameter_2 = int(line[2])
+    parameter_3 = int(line[3])
+    parameter_4 = int(line[4])
+    parameter_5 = int(line[5])
+    return Planet(parameter_1, parameter_2, parameter_3, parameter_4, parameter_5)
+
+
+class App():
+    def __init__(self):
+        self.root = Tkinter.Tk()
+        button = Tkinter.Button(self.root, text = 'root quit', command=self.quit)
+        button.pack()
+        self.root.mainloop()
+
+    def quit(self):
+        self.root.destroy()
+
+
+def II(me):
+    '''Эта функция отвечает за поведение вражеских планет'''
+    global planets, aggressiveness
+    all_planets = []
+    for i in planets:
+        all_planets.append(i)
+    my_planets = []
+    other_planets = []
+    enemy_planets = []
+    neutral_planets = []
+    my_planets_at = []
+    player_planets = []
+    allow = 1
+    target = 0
+    stopper = 0
+    enemy_target = 0
+    neutral_target = 0
+    enemy_length = 5000
+    neutral_length = 5000
+    exit = 0
+    attack_potential = 0
+    maxmass = 0
+    maxmass_p = 0
+    for bl in range (10):
+        for i in all_planets:
+            if i.owner == me:
+                if i.mass >= 25 * (2 ** i.level) and i.growing <= 0:
+                    i.second_click(i)
+                else:
+                    if i.growing <= 0:
+                        my_planets.append(i)
+            else:
+                other_planets.append(i)
+                if i.owner == 0:
+                    neutral_planets.append(i)
                 else:
                     other_planets.append(i)
                     if i.owner == 0:
@@ -546,9 +628,16 @@ def click(event):
             neutral_target = 0
 
 
+def fin():
+    time.sleep(3)
+    root.destroy()
+
+
 def update():
     """Эта функия отвечает за обновление экрана"""
-    global counter
+    global counter, flag_lose, flag_win
+    player_planets = 0
+    II_planets = 0
     if counter >= 200:
         counter = 0
         for i in range(2):
@@ -559,8 +648,18 @@ def update():
     for j in planets:
         j.grow()
         j.massupdate()
+        if j.owner == 1:
+            player_planets += 1
+        if j.owner == 2 or j.owner == 3:
+            II_planets += 1
+    if player_planets == 0:
+        canvas.create_text(1000, 500, text='YOU LOSE', fill='white', font="Times 60")
+        root.after(10, fin)
+    if II_planets == 0:
+        canvas.create_text(1000, 500, text='YOU WIN', fill='white', font="Times 60")
+        root.after(10, fin)
     counter += 1
-    root.after(10, update)
+    root.after(1, update)
 
 
 def main(s0):
