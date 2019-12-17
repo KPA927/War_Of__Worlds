@@ -1,11 +1,4 @@
 -4
-planet 	30 900 880 1 2 
-planet	30 180 100 2 2
-planet	30 1620 100 3 2
-planet  5  660 100 0 1
-planet  5  1140 100 0 1
-planet  5  420 360 0 1
-planet  5  900 360 0 1
-planet  5  1380 360 0 1
-planet  5  660 620 0 1
-planet  5  1140 620 0 1
+planet 	100 860 740 1 2 
+planet 	20 1060 740 2 4
+
