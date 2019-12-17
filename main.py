@@ -88,8 +88,6 @@ lines = []
 planets = []
 counter = 0
 aggressiveness = 0
-flag_win = [0, 0]
-flag_lose = 0
 
 
 
