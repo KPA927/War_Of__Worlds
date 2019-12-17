@@ -3,22 +3,45 @@ from tkinter import *
 from random import randrange as rnd, choice
 import tkinter as tk
 import math
+from PIL import Image, ImageTk
 #from input_map import read_space_objects_data_from_file as read
 import time
 import socket
 import pickle
 
+
+
+
+class Example(Frame):
+    def __init__(self, parent):
+        Frame.__init__(self, parent)
+
+        self.parent = parent
+
+        self.initUI()
+
+    def initUI(self):
+        global canvas
+
+        self.parent.title("High Tatras")
+        self.pack(fill=BOTH, expand=1)
+
+        self.img = Image.open("Background.jpg")
+        self.tatras = ImageTk.PhotoImage(self.img)
+
+        canvas = Canvas(self, width=self.img.size[0] + 20,
+                        height=self.img.size[1] + 20)
+        canvas.create_image(10, 10, anchor=NW, image=self.tatras)
+        canvas.pack(fill=BOTH, expand=1)
+
 root = tk.Tk()
 fr = tk.Frame(root)
 root.geometry('1920x1080')
-canvas = tk.Canvas(root, bg='black')
-canvas.focus_set()
-canvas.pack(fill=tk.BOTH, expand=1)
+ex = Example(root)
 lines = []
 planets = []
 counter = 0
 aggressiveness = 0
-
 
 def casual_game():
     first = Toplevel()
@@ -227,6 +250,7 @@ class Planet:
             outline='grey'
         )
         self.text = canvas.create_text(self.x, self.y, text=int(self.mass), fill='white', font=self.font)
+
 
 
 class Line:
@@ -616,6 +640,6 @@ def main(s0):
     update()
 
 
-lets_play()
+main('7')
 
 root.mainloop()
