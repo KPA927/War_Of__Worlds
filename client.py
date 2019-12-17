@@ -1,22 +1,30 @@
-# coding=utf-8
+'''import socket
+
+HOST = '192.168.1.2'    # The remote host
+PORT = 50007              # The same port as used by the server
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.connect((HOST, PORT))
+    s.sendall(b'Hello, world')
+    data = s.recv(1024)
+print('Received', repr(data))'''
+
 from tkinter import *
 from random import randrange as rnd, choice
 import tkinter as tk
 import math
-# from input_map import read_space_objects_data_from_file as read
-import time
+#from input_map import read_space_objects_data_from_file as read
+import sys
 import socket
 import pickle
 import sys
+import time
 
-lines = []
-planets = []
-counter = 0
-aggressiveness = 0
-flag_win = [0, 0]
-flag_lose = 0
-root = Tk()
-root.geometry('800x600')
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+host = 'localhost'
+port = 8007
+s.connect((host, port))
+all_things = 1
 
 
 def casual_game():
@@ -210,6 +218,18 @@ class Planet:
             fill=self.color,
             outline='grey'
         )
+        if self.highlighting == 1:
+            self.id1 = canvas.create_oval(
+                self.x - self.r - 5,
+                self.y - self.r - 5,
+                self.x + self.r + 5,
+                self.y + self.r + 5,
+                width=3,
+                outline='grey'
+            )
+        else:
+            canvas.delete(self.id1)
+        canvas.delete(self.text)
         self.text = canvas.create_text(self.x, self.y, text=int(self.mass), fill='white', font=self.font)
 
 
@@ -249,8 +269,7 @@ class Line:
         self.id = canvas.create_line(self.get_line_begin(),
                                      self.get_line_end(),
                                      fill=self.color,
-                                     width=7
-                                     )
+                                     width=7)
 
     def get_line_begin(self):
         if self.begin == 1:
@@ -299,11 +318,11 @@ class Line:
         self.update_mass()
 
     def redraw(self):
-        canvas.coords(
-            self.id,
-            *self.get_line_begin(),
-            *self.get_line_end()
-        )
+        canvas.delete(self.id,)
+        self.id = canvas.create_line(self.get_line_begin(),
+                                     self.get_line_end(),
+                                     fill=self.color,
+                                     width=7)
 
     def update_mass(self):
         if self.begin == 1 and self.end == 1:
@@ -339,7 +358,8 @@ class Line:
         canvas.delete(self.id)
         self.begin = 0
         self.end = 0
-        lines.remove(self)
+        if self in lines:
+            lines.remove(self)
 
     def update(self):
         self.x1 = self.planet1.x + self.planet1.r * math.cos(self.an)
@@ -354,65 +374,25 @@ class Line:
             self.Num = self.count1
             self.begin = 0
 
-
-def click(event):
-    """
-    Эта функция реагирует на нажатие ллевой кнопкой мыши игроком, позволяет
-    выделить планету, провести атаку, или сделать апгрейд
-    """
-    sec_click = 0
-    space_click = 1
-    i = 0
-    allow = 1
-    for i in planets:
-        if i.highlighting == 1:
-            sec_click = 1
-            break
-
-    if sec_click == 1:
-        for j in planets:
-            if ((event.x - j.x) ** 2 + (event.y - j.y) ** 2) <= j.r ** 2:
-                for k in lines:
-                    if k.planet1 == i:
-                        k.stop()
-                if i.mass <= 0:
-                    allow = 0
-                if allow == 1:
-                    i.second_click(j)
-                    space_click = 0
-                    break
-                allow = 1
-        i.highlighting = 0
-        canvas.delete(i.id1)
-        if space_click == 1:
-            for k in lines:
-                if k.planet1 == i:
-                    k.stop()
-    else:
-        for j in planets:
-            if (((event.x - j.x) ** 2 + (event.y - j.y) ** 2) <= (j.r) ** 2) and (j.owner == 1):
-                j.first_click()
-
-
 def read_space_objects_data_from_file(input_filename):
-    global aggressiveness
-    """Cчитывает данные о космических объектах из файла, создаёт сами объекты
-    и вызывает создание их графических образов
-    Параметры:
-    **input_filename** — имя входного файла
-    """
-    objects = []
-    with open(input_filename) as input_file:
-        for line in input_file:
-            if len(line.strip()) == 0 or line[0] == '#':
-                continue  # пустые строки и строки-комментарии пропускаем
-            object_type = line.split()[0].lower()
-            if object_type == "planet":
-                p = parse_planet_parameters(line)
-                objects.append(p)
-            else:
-                aggressiveness = int(object_type)
-    return objects
+        global aggressiveness
+        """Cчитывает данные о космических объектах из файла, создаёт сами объекты
+        и вызывает создание их графических образов
+        Параметры:
+        **input_filename** — имя входного файла
+        """
+        objects = []
+        with open(input_filename) as input_file:
+            for line in input_file:
+                if len(line.strip()) == 0 or line[0] == '#':
+                    continue  # пустые строки и строки-комментарии пропускаем
+                object_type = line.split()[0].lower()
+                if object_type == "planet":
+                    p = parse_planet_parameters(line)
+                    objects.append(p)
+                else:
+                    aggressiveness = int(object_type)
+        return objects
 
 
 def parse_planet_parameters(line):
@@ -437,175 +417,61 @@ def parse_planet_parameters(line):
     return Planet(parameter_1, parameter_2, parameter_3, parameter_4, parameter_5)
 
 
-def II(me):
-    '''Эта функция отвечает за поведение вражеских планет'''
-    global planets, aggressiveness
-    all_planets = []
-    for i in planets:
-        all_planets.append(i)
-    my_planets = []
-    other_planets = []
-    enemy_planets = []
-    neutral_planets = []
-    my_planets_at = []
-    player_planets = []
-    allow = 1
-    target = 0
-    stopper = 0
-    enemy_target = 0
-    neutral_target = 0
-    enemy_length = 5000
-    neutral_length = 5000
-    exit = 0
-    attack_potential = 0
-    maxmass = 0
-    maxmass_p = 0
-    for bl in range(10):
-        for i in all_planets:
-            if i.owner == me:
-                if i.mass >= 25 * (2 ** i.level) and i.growing <= 0:
-                    i.second_click(i)
-                else:
-                    if i.growing <= 0:
-                        my_planets.append(i)
-            else:
-                other_planets.append(i)
-                if i.owner == 0:
-                    neutral_planets.append(i)
-                else:
-                    enemy_planets.append(i)
-        if len(my_planets) != 0 and len(other_planets) != 0:
-            for i in my_planets:
-                attack_potential += i.mass
-            if len(enemy_planets) != 0:
-                while exit <= len(enemy_planets):
-                    for i in my_planets:
-                        for j in enemy_planets:
-                            if (i.x - j.x) ** 2 + (i.y - j.y) ** 2 <= enemy_length ** 2:
-                                enemy_length = ((i.x - j.x) ** 2 + (i.y - j.y) ** 2) ** 0.5
-                                target1 = j
-                    if target1.mass + 3 < attack_potential:
-                        enemy_target = target1
-                        break
-                    elif target1 in enemy_planets:
-                        enemy_planets.remove(target1)
-                        exit += 1
-                    enemy_length = 5000
-            if len(neutral_planets) != 0:
-                while exit <= len(neutral_planets):
-                    for i in my_planets:
-                        for j in neutral_planets:
-                            if (i.x - j.x) ** 2 + (i.y - j.y) ** 2 <= neutral_length ** 2:
-                                neutral_length = ((i.x - j.x) ** 2 + (i.y - j.y) ** 2) ** 0.5
-                                target1 = j
-                    if target1.mass + 3 < attack_potential:
-                        neutral_target = target1
-                        break
-                    elif target1 in neutral_planets:
-                        neutral_planets.remove(target1)
-                        exit += 1
-                    neutral_length = 5000
-            if neutral_target == 0:
-                target = enemy_target
-            elif enemy_target == 0:
-                target = neutral_target
-            elif neutral_target == 0 and enemy_target == 0:
-                pass
-            else:
-                if neutral_length * (1 + aggressiveness * 0.3) < enemy_length:
-                    target = neutral_target
-                else:
-                    target = enemy_target
-            if target != 0:
-                for i in my_planets:
-                    if i.mass > maxmass:
-                        maxmass = i.mass
-                        maxmass_p = i
-                maxmass = 500
-                my_planets.remove(maxmass_p)
-                my_planets_at.append(maxmass_p)
-                one_attack_potential = maxmass_p.mass
-                while target.mass + 3 >= one_attack_potential:
-                    for i in my_planets:
-                        if i.mass <= maxmass:
-                            maxmass = i.mass
-                            maxmass_p = i
-                    if maxmass_p in my_planets:
-                        my_planets.remove(maxmass_p)
-                    my_planets_at.append(maxmass_p)
-                    maxmass = 500
-                    one_attack_potential += maxmass_p.mass
-                    if len(my_planets) == 0:
-                        stopper = 1
-                        break
-                maxmass = 0
-                if stopper == 0:
-                    for i in my_planets_at:
-                        for k in lines:
-                            if k.planet1 == i:
-                                k.stop()
-                        if i.mass <= 0:
-                            allow = 0
-                        if allow == 1:
-                            i.second_click(target)
-                            if i in all_planets:
-                                all_planets.remove(i)
-                        allow = 1
-                        if target in all_planets:
-                            all_planets.remove(target)
-                stopper = 0
-            my_planets_at = []
-            my_planets = []
-            neutral_planets = []
-            enemy_planets = []
-            other_planets = []
-            maxmass_p = 0
-            target = 0
-            enemy_target = 0
-            neutral_target = 0
-
-
 def fin():
     time.sleep(3)
     root.destroy()
 
 
-def update():
-    """Эта функия отвечает за обновление экрана"""
-    global counter, flag_lose, flag_win
-    player_planets = 0
-    II_planets = 0
-    if counter >= 200:
-        counter = 0
-        for i in range(2):
-            II(i + 2)
+def click(event):
+    global all_things
+    all_things = [event.x, event.y]
 
-    for i in lines:
-        i.grow()
-        i.redraw()
-    for j in planets:
-        j.grow()
-        j.massupdate()
-        if j.owner == 1:
-            player_planets += 1
-        if j.owner == 2 or j.owner == 3:
-            II_planets += 1
-    if player_planets == 0:
-        canvas.create_text(1000, 500, text='YOU LOSE', fill='white', font="Times 60")
-        root.after(10, fin)
-    if II_planets == 0:
-        canvas.create_text(1000, 500, text='YOU WIN', fill='white', font="Times 60")
-        root.after(10, fin)
-    counter += 1
-    root.after(10, update)
+
+def update():
+        global all_things, counter, filename
+        player_planets = 0
+        II_planets = 0
+        canvas.delete('all')
+        canvas.create_image(960, 1080, anchor=S, image=filename)
+        if counter % 5 == 0:
+            s.send(pickle.dumps(all_things, 2))
+            data = s.recv(1000000)
+            data = pickle.loads(data)
+            planets = data[0]
+            lines = data[1]
+            if all_things != 0:
+                all_things = 1
+        canvas.delete('all')
+        canvas.create_image(960, 1080, anchor=S, image=filename)
+        for i in lines:
+            i.grow()
+            i.redraw()
+        for j in planets:
+            j.grow()
+            j.massupdate()
+            j.redraw()
+            if j.owner == 1:
+                player_planets += 1
+            if j.owner == 2 or j.owner == 3:
+                II_planets += 1
+        if player_planets == 0:
+            canvas.create_text(1000, 500, text='YOU LOSE', fill='white', font="Times 60")
+            root.after(10, fin)
+        if II_planets == 0:
+            canvas.create_text(1000, 500, text='YOU WIN', fill='white', font="Times 60")
+            root.after(10, fin)
+        root.after(10, update)
+
 
 
 def main(s0):
-    global planets
-    s = 'C:\\Users\\acer\\War_Of__Worlds\\Maps/' + s0 + '.txt'
-    planets = read_space_objects_data_from_file(s)
-    canvas.bind('<Button-1>', click)
-    update()
+        global planets, lines
+        lines = []
+        sas = 'C:\\Users\\acer\\War_Of__Worlds\\Maps/' + s0 + '.txt'
+        planets = read_space_objects_data_from_file(sas)
+        s.send(pickle.dumps([planets, lines], 2))
+        canvas.bind('<Button-1>', click)
+        update()
 
 
 def lets_play():
@@ -630,7 +496,7 @@ def lets_play():
 
 
 def game():
-    global canvas, root, lines, planets, counter, aggressiveness, flag_win, flag_lose
+    global canvas, root, lines, planets, counter, aggressiveness, flag_win, flag_lose, filename
     lines = []
     planets = []
     counter = 0
@@ -653,5 +519,3 @@ def game():
 
 
 lets_play()
-
-
