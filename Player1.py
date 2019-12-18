@@ -12,8 +12,21 @@ import time
 
 all_things = 1
 #"Введите свой ID:
-ID = '192.168.1.2'
-
+#ID = '192.168.1.6'
+while True:
+    IP = input('Введите IP сервера из программы server.py: ')
+    try:
+        client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_sock.connect((IP, 8007))
+        client_sock.close()
+        print ('Соединение установлено')
+        break
+    except ConnectionRefusedError:
+        print('Неверный IP, введите снова!')
+    except TimeoutError:
+        print('Неверный IP, введите снова!')
+    except socket.gaierror:
+        print('Неверный IP, введите снова!')
 
 def casual_game():
     first = Toplevel()
@@ -426,7 +439,7 @@ def update():
     II_planets = 0
     if counter % 5 == 0:
         client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_sock.connect((ID, 8007))
+        client_sock.connect((IP, 8007))
         client_sock.send(pickle.dumps(all_things, 2))
         data = client_sock.recv(1000000)
         try:
@@ -478,7 +491,7 @@ def update():
 def main(s0):
     global planets, lines, client_sock
     client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_sock.connect(( ID, 8007))
+    client_sock.connect(( IP, 8007))
     lines = []
     sas = 'Maps/' + s0 + '.txt'
     planets = read_space_objects_data_from_file(sas)
