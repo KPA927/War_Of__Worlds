@@ -1,12 +1,3 @@
-'''import socket
-
-HOST = '192.168.1.2'    # The remote host
-PORT = 50007              # The same port as used by the server
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.connect((HOST, PORT))
-    s.sendall(b'Hello, world')
-    data = s.recv(1024)
-print('Received', repr(data))'''
 import pickle
 from tkinter import *
 from random import randrange as rnd, choice
@@ -20,6 +11,8 @@ import sys
 import time
 
 all_things = 1
+#"Введите свой ID:
+ID = '192.168.1.2'
 
 
 def casual_game():
@@ -431,11 +424,9 @@ def update():
     player1_planets = 0
     player2_planets = 0
     II_planets = 0
-    # canvas.delete('all')
-    # canvas.create_image(960, 1080, anchor=S, image=filename)
     if counter % 5 == 0:
         client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_sock.connect(('192.168.1.2', 8007))
+        client_sock.connect((ID, 8007))
         client_sock.send(pickle.dumps(all_things, 2))
         data = client_sock.recv(1000000)
         try:
@@ -487,13 +478,12 @@ def update():
 def main(s0):
     global planets, lines, client_sock
     client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_sock.connect(('192.168.1.2', 8007))
+    client_sock.connect(( ID, 8007))
     lines = []
     sas = 'Maps/' + s0 + '.txt'
     planets = read_space_objects_data_from_file(sas)
     data = pickle.dumps([planets, lines], 2)
     client_sock.send(data)
-    #client_sock.close()
     canvas.bind('<Button-1>', click)
     update()
 
@@ -533,8 +523,6 @@ def game():
     canvas = Canvas(root, bg="blue", height=1920, width=1080)
     canvas.delete("all")
     filename = PhotoImage(file="Images\\fon.png")
-    # background_label = Label(canvas, image=filename)
-    # background_label.place(x=0, y=0, relwidth=1, relheight=1)
     canvas.create_image(960, 1080, anchor=S, image=filename)
     canvas.focus_set()
     canvas.pack(fill=tk.BOTH, expand=1)
