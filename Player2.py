@@ -19,39 +19,20 @@ import pickle
 import sys
 import time
 
-
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host = 'localhost'
-port = 8007
-s.connect((host, port))
 all_things = 1
 
 
 def casual_game():
     first = Toplevel()
-    first.title("Выбор карты")
-    first.geometry('600x600')
+    first.title("Соединение")
+    first.geometry('600x150')
     y = 120
     first['bg'] = _from_rgb((153, 166, 224))
-    header = Label(first, text="Выберите карту", padx=10, pady=8, bg=_from_rgb((133, 145, 199)))
-    header.place(relx=.5, rely=.1, anchor="c", height=40, width=100)
-    maps = [("Карта №1", 1), ("Карта №2", 2), ("Карта №3", 3), ("Карта №4", 4),
-            ("Карта №5", 5), ("Карта №6", 6), ("Карта №7", 7)]
-    mapp = IntVar()
-
-    def select():
-        global m
-        m = mapp.get()
-
-    for txt, val in maps:
-        Radiobutton(first, text=txt, value=val, variable=mapp, padx=15, pady=10, bg=_from_rgb((153, 166, 224)),
-                    fg='black',
-                    activebackground=_from_rgb((133, 145, 199)), command=select) \
-            .place(x=300, y=y, anchor="c", height=50, width=150)
-        y += 60
-    btn_game = Button(first, text="ОК", background="white", foreground="black", activebackground="red",
-                      activeforeground="green", padx="20", pady="8", font="16", command=game)
-    btn_game.place(relx=.5, rely=.9, anchor="c", height=50, width=130, bordermode=OUTSIDE)
+    global m
+    m = 1
+    btn_game = Button(first, text="ПРИСОЕДИНИТЬСЯ К ИГРЕ", background="white", foreground="black", activebackground="red",
+                      activeforeground="green", padx="20", pady="4", font="16", command=game)
+    btn_game.place(relx=.5, rely=.5, anchor="c", height=50, width=400, bordermode=OUTSIDE)
 
 
 def first_game():
@@ -61,7 +42,6 @@ def first_game():
     first.title("Правила игры")
     first.geometry('900x900')
     first['bg'] = _from_rgb((153, 166, 224))
-
     Label(first, bg=_from_rgb((133, 145, 199)),
           text="Правила игры: В этой игре вам предстоит сразиться с враждебно\n"
                " настроенными представителями других цивилизаций за сохранение\n"
@@ -227,9 +207,6 @@ class Planet:
                 width=3,
                 outline='grey'
             )
-        #else:
-            #canvas.delete(self.id1)
-        #canvas.delete(self.text)
         self.text = canvas.create_text(self.x, self.y, text=int(self.mass), fill='white', font=self.font)
 
 
@@ -393,6 +370,8 @@ def read_space_objects_data_from_file(input_filename):
             object_type = line.split()[0].lower()
             if object_type == "planet":
                 p = parse_planet_parameters(line)
+                if input_filename == 'How_to_play' and p.level == 3:
+                    p.owner == 2
                 objects.append(p)
             else:
                 aggressiveness = int(object_type)
@@ -412,7 +391,6 @@ def parse_planet_parameters(line):
     **planet** — объект планеты.
     """
     line = line.split()
-
     parameter_1 = int(line[1])
     parameter_2 = int(line[2])
     parameter_3 = int(line[3])
@@ -430,24 +408,30 @@ def click(event):
     global all_things
     all_things = [event.x, event.y, 2]
 
-
 def update():
-        global all_things, counter, filename
-        player1_planets = 0
-        player2_planets = 0
-        II_planets = 0
-        #canvas.delete('all')
-        #canvas.create_image(960, 1080, anchor=S, image=filename)
-        if counter % 5 == 0:
-            s.send(pickle.dumps(all_things, 2))
-            data = s.recv(1000000)
+    global all_things, counter, filename, client_sock
+    player1_planets = 0
+    player2_planets = 0
+    II_planets = 0
+    if counter % 5 == 0:
+        client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_sock.connect(('192.168.1.2', 8007))
+        client_sock.send(pickle.dumps(all_things, 2))
+        data = client_sock.recv(1000000)
+        try:
             data = pickle.loads(data)
             planets = data[0]
             lines = data[1]
             if all_things != 0:
                 all_things = 1
-        canvas.delete('all')
-        canvas.create_image(960, 1080, anchor=S, image=filename)
+            client_sock.close()
+        except EOFError:
+            pass
+        except pickle.UnpicklingError:
+            pass
+    canvas.delete('all')
+    canvas.create_image(960, 1080, anchor=S, image=filename)
+    try:
         for i in lines:
             i.grow()
             i.redraw()
@@ -459,9 +443,8 @@ def update():
                 player1_planets += 1
             if j.owner == 3:
                 II_planets += 1
-            if j.owner ==2:
+            if j.owner == 2:
                 player2_planets += 1
-
         if player2_planets == 0 and player1_planets == 0:
             canvas.create_text(1000, 500, text='II WINS', fill='white', font="Times 60")
             root.after(10, fin)
@@ -471,18 +454,16 @@ def update():
         if player2_planets == 0 and II_planets == 0:
             canvas.create_text(1000, 500, text='PLAYER 1 WINS', fill='white', font="Times 60")
             root.after(10, fin)
-
-        root.after(10, update)
+    except UnboundLocalError:
+        pass
+    root.after(20, update)
 
 
 def main(s0):
-        global planets, lines
-        lines = []
-        sas = 'C:\\Users\\acer\\War_Of__Worlds\\Maps/' + s0 + '.txt'
-        planets = read_space_objects_data_from_file(sas)
-        s.send(pickle.dumps([planets, lines], 2))
-        canvas.bind('<Button-1>', click)
-        update()
+    global planets, lines, client_sock
+    lines = []
+    canvas.bind('<Button-1>', click)
+    update()
 
 
 def lets_play():
@@ -490,7 +471,7 @@ def lets_play():
     root.title("Война миров")
     root.geometry("900x600")
     C = Canvas(root, bg="blue", height=1920, width=1080)
-    filename = PhotoImage(file="C:\\Users\\acer\\War_Of__Worlds\\Images\\menu.png")
+    filename = PhotoImage(file="Images\\menu.png")
     background_label = Label(root, image=filename)
     background_label.place(x=0, y=0, relwidth=1, relheight=1)
     C.pack()
@@ -519,9 +500,7 @@ def game():
     root.geometry('1920x1080')
     canvas = Canvas(root, bg="blue", height=1920, width=1080)
     canvas.delete("all")
-    filename = PhotoImage(file="C:\\Users\\acer\\War_Of__Worlds\\Images\\fon.png")
-    # background_label = Label(canvas, image=filename)
-    # background_label.place(x=0, y=0, relwidth=1, relheight=1)
+    filename = PhotoImage(file="Images\\fon.png")
     canvas.create_image(960, 1080, anchor=S, image=filename)
     canvas.focus_set()
     canvas.pack(fill=tk.BOTH, expand=1)
