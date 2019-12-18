@@ -1,13 +1,3 @@
-'''import socket
-
-HOST = '192.168.1.2'    # The remote host
-PORT = 50007              # The same port as used by the server
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.connect((HOST, PORT))
-    s.sendall(b'Hello, world')
-    data = s.recv(1024)
-print('Received', repr(data))'''
-
 from tkinter import *
 from random import randrange as rnd, choice
 import tkinter as tk
@@ -21,6 +11,8 @@ import time
 
 all_things = 1
 
+#Введите свой ID:
+ID = '192.168.1.2'
 
 def casual_game():
     first = Toplevel()
@@ -415,7 +407,7 @@ def update():
     II_planets = 0
     if counter % 5 == 0:
         client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_sock.connect(('192.168.1.2', 8007))
+        client_sock.connect((ID, 8007))
         client_sock.send(pickle.dumps(all_things, 2))
         data = client_sock.recv(1000000)
         try:
