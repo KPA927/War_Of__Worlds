@@ -88,7 +88,6 @@ def _from_rgb(rgb):
 class Planet:
     """Класс планет. Отрисовывает планеты, настраивает взаимодействие между ними.
     Также планеты можно улучшать.
-
     args **mass** - масса планеты
     **x**, **y** - координаты (x, y) планеты
     **owner** - владелец планеты (1 - игрок, 2 и 3 -боты, 0 - нейтральные планеты)
@@ -602,7 +601,7 @@ def update():
 
 def main(s0):
     global planets
-    s = 'C:\\Users\\acer\\War_Of__Worlds\\Maps/' + s0 + '.txt'
+    s = 'Maps/' + s0 + '.txt'
     planets = read_space_objects_data_from_file(s)
     canvas.bind('<Button-1>', click)
     update()
@@ -613,7 +612,7 @@ def lets_play():
     root.title("Война миров")
     root.geometry("900x600")
     C = Canvas(root, bg="blue", height=1920, width=1080)
-    filename = PhotoImage(file="C:\\Users\\acer\\War_Of__Worlds\\Images\\menu.png")
+    filename = PhotoImage(file="Images\\menu.png")
     background_label = Label(root, image=filename)
     background_label.place(x=0, y=0, relwidth=1, relheight=1)
     C.pack()
@@ -642,7 +641,7 @@ def game():
     root.geometry('1920x1080')
     canvas = Canvas(root, bg="blue", height=1920, width=1080)
     canvas.delete("all")
-    filename = PhotoImage(file="C:\\Users\\acer\\War_Of__Worlds\\Images\\fon.png")
+    filename = PhotoImage(file="Images\\fon.png")
     # background_label = Label(canvas, image=filename)
     # background_label.place(x=0, y=0, relwidth=1, relheight=1)
     canvas.create_image(960, 1080, anchor=S, image=filename)
@@ -651,7 +650,5 @@ def game():
     main(str(m))
     root.mainloop()
 
-
 lets_play()
-
 
