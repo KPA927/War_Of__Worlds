@@ -7,7 +7,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.sendall(b'Hello, world')
     data = s.recv(1024)
 print('Received', repr(data))'''
-
+import pickle
 from tkinter import *
 from random import randrange as rnd, choice
 import tkinter as tk
@@ -19,11 +19,6 @@ import pickle
 import sys
 import time
 
-
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host = 'localhost'
-port = 8007
-s.connect((host, port))
 all_things = 1
 
 
@@ -227,9 +222,9 @@ class Planet:
                 width=3,
                 outline='grey'
             )
-        else:
-            canvas.delete(self.id1)
-        canvas.delete(self.text)
+        #else:
+            #canvas.delete(self.id1)
+        #canvas.delete(self.text)
         self.text = canvas.create_text(self.x, self.y, text=int(self.mass), fill='white', font=self.font)
 
 
@@ -269,7 +264,8 @@ class Line:
         self.id = canvas.create_line(self.get_line_begin(),
                                      self.get_line_end(),
                                      fill=self.color,
-                                     width=7)
+                                     width=7
+                                     )
 
     def get_line_begin(self):
         if self.begin == 1:
@@ -318,11 +314,13 @@ class Line:
         self.update_mass()
 
     def redraw(self):
-        canvas.delete(self.id,)
-        self.id = canvas.create_line(self.get_line_begin(),
-                                     self.get_line_end(),
-                                     fill=self.color,
-                                     width=7)
+        #canvas.delete(self.id,)
+        self.id = canvas.create_line(
+            self.get_line_begin(),
+            self.get_line_end(),
+            fill=self.color,
+            width=7
+        )
 
     def update_mass(self):
         if self.begin == 1 and self.end == 1:
@@ -374,25 +372,26 @@ class Line:
             self.Num = self.count1
             self.begin = 0
 
+
 def read_space_objects_data_from_file(input_filename):
-        global aggressiveness
-        """Cчитывает данные о космических объектах из файла, создаёт сами объекты
-        и вызывает создание их графических образов
-        Параметры:
-        **input_filename** — имя входного файла
-        """
-        objects = []
-        with open(input_filename) as input_file:
-            for line in input_file:
-                if len(line.strip()) == 0 or line[0] == '#':
-                    continue  # пустые строки и строки-комментарии пропускаем
-                object_type = line.split()[0].lower()
-                if object_type == "planet":
-                    p = parse_planet_parameters(line)
-                    objects.append(p)
-                else:
-                    aggressiveness = int(object_type)
-        return objects
+    global aggressiveness
+    """Cчитывает данные о космических объектах из файла, создаёт сами объекты
+    и вызывает создание их графических образов
+    Параметры:
+    **input_filename** — имя входного файла
+    """
+    objects = []
+    with open(input_filename) as input_file:
+        for line in input_file:
+            if len(line.strip()) == 0 or line[0] == '#':
+                continue  # пустые строки и строки-комментарии пропускаем
+            object_type = line.split()[0].lower()
+            if object_type == "planet":
+                p = parse_planet_parameters(line)
+                objects.append(p)
+            else:
+                aggressiveness = int(object_type)
+    return objects
 
 
 def parse_planet_parameters(line):
@@ -428,57 +427,75 @@ def click(event):
 
 
 def update():
-    global all_things, counter, filename
+    global all_things, counter, filename, client_sock, second_player
     player1_planets = 0
     player2_planets = 0
     II_planets = 0
     # canvas.delete('all')
     # canvas.create_image(960, 1080, anchor=S, image=filename)
     if counter % 5 == 0:
-        s.send(pickle.dumps(all_things, 2))
-        data = s.recv(1000000)
-        data = pickle.loads(data)
-        planets = data[0]
-        lines = data[1]
-        if all_things != 0:
-            all_things = 1
+        client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_sock.connect(('192.168.1.2', 8007))
+        client_sock.send(pickle.dumps(all_things, 2))
+        data = client_sock.recv(1000000)
+        try:
+            data = pickle.loads(data)
+            planets = data[0]
+            lines = data[1]
+            second_player = data[2]
+            if all_things != 0:
+                all_things = 1
+            client_sock.close()
+        except EOFError:
+            pass
+        except pickle.UnpicklingError:
+            pass
     canvas.delete('all')
     canvas.create_image(960, 1080, anchor=S, image=filename)
-    for i in lines:
-        i.grow()
-        i.redraw()
-    for j in planets:
-        j.grow()
-        j.massupdate()
-        j.redraw()
-        if j.owner == 1:
-            player1_planets += 1
-        if j.owner == 3:
-            II_planets += 1
-        if j.owner == 2:
-            player2_planets += 1
-
-    if player2_planets == 0 and player1_planets == 0:
-        canvas.create_text(1000, 500, text='II WINS', fill='white', font="Times 60")
-        root.after(10, fin)
-    if II_planets == 0 and player1_planets == 0:
-        canvas.create_text(1000, 500, text='PLAYER 2 WINS', fill='white', font="Times 60")
-        root.after(10, fin)
-    if player2_planets == 0 and II_planets == 0:
-        canvas.create_text(1000, 500, text='PLAYER 1 WINS', fill='white', font="Times 60")
-        root.after(10, fin)
-
-    root.after(10, update)
+    try:
+        for i in lines:
+            i.grow()
+            i.redraw()
+        for j in planets:
+            j.grow()
+            j.massupdate()
+            j.redraw()
+            if j.owner == 1:
+                player1_planets += 1
+            if j.owner == 3:
+                II_planets += 1
+            if j.owner == 2:
+                player2_planets += 1
+        if player2_planets == 0 and player1_planets == 0:
+            canvas.create_text(1000, 500, text='II WINS', fill='white', font="Times 60")
+            root.after(10, fin)
+        if II_planets == 0 and player1_planets == 0:
+            canvas.create_text(1000, 500, text='PLAYER 2 WINS', fill='white', font="Times 60")
+            root.after(10, fin)
+        if player2_planets == 0 and II_planets == 0:
+            canvas.create_text(1000, 500, text='PLAYER 1 WINS', fill='white', font="Times 60")
+            root.after(10, fin)
+    except UnboundLocalError:
+        pass
+    if second_player:
+        root.after(20, update)
+    else:
+        print(second_player)
+        root.after(10, update)
 
 
 def main(s0):
-        global planets, lines
-        lines = []
-        sas = 'C:\\Users\\acer\\War_Of__Worlds\\Maps/' + s0 + '.txt'
-        planets = read_space_objects_data_from_file(sas)
-        s.send(pickle.dumps([planets, lines], 2))
-        canvas.bind('<Button-1>', click)
-        update()
+    global planets, lines, client_sock
+    client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_sock.connect(('192.168.1.2', 8007))
+    lines = []
+    sas = 'Maps/' + s0 + '.txt'
+    planets = read_space_objects_data_from_file(sas)
+    data = pickle.dumps([planets, lines], 2)
+    client_sock.send(data)
+    #client_sock.close()
+    canvas.bind('<Button-1>', click)
+    update()
 
 
 def lets_play():
@@ -486,7 +503,7 @@ def lets_play():
     root.title("Война миров")
     root.geometry("900x600")
     C = Canvas(root, bg="blue", height=1920, width=1080)
-    filename = PhotoImage(file="C:\\Users\\acer\\War_Of__Worlds\\Images\\menu.png")
+    filename = PhotoImage(file="Images\\menu.png")
     background_label = Label(root, image=filename)
     background_label.place(x=0, y=0, relwidth=1, relheight=1)
     C.pack()
@@ -515,7 +532,7 @@ def game():
     root.geometry('1920x1080')
     canvas = Canvas(root, bg="blue", height=1920, width=1080)
     canvas.delete("all")
-    filename = PhotoImage(file="C:\\Users\\acer\\War_Of__Worlds\\Images\\fon.png")
+    filename = PhotoImage(file="Images\\fon.png")
     # background_label = Label(canvas, image=filename)
     # background_label.place(x=0, y=0, relwidth=1, relheight=1)
     canvas.create_image(960, 1080, anchor=S, image=filename)
