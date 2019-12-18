@@ -12,8 +12,7 @@ import time
 
 all_things = 1
 #"Введите свой ID:
-ID = '192.168.1.2'
-
+IP = '192.168.1.6'
 
 def casual_game():
     first = Toplevel()
@@ -40,6 +39,8 @@ def casual_game():
     btn_game = Button(first, text="ОК", background="white", foreground="black", activebackground="red",
                       activeforeground="green", padx="20", pady="8", font="16", command=game)
     btn_game.place(relx=.5, rely=.9, anchor="c", height=50, width=130, bordermode=OUTSIDE)
+
+
 
 
 def first_game():
@@ -426,7 +427,7 @@ def update():
     II_planets = 0
     if counter % 5 == 0:
         client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_sock.connect((ID, 8007))
+        client_sock.connect((IP, 8007))
         client_sock.send(pickle.dumps(all_things, 2))
         data = client_sock.recv(1000000)
         try:
@@ -478,7 +479,7 @@ def update():
 def main(s0):
     global planets, lines, client_sock
     client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_sock.connect(( ID, 8007))
+    client_sock.connect((IP, 8007))
     lines = []
     sas = 'Maps/' + s0 + '.txt'
     planets = read_space_objects_data_from_file(sas)
