@@ -8,22 +8,9 @@ import socket
 import pickle
 import sys
 import time
-
 all_things = 1
-while True:
-    IP = input('Введите IP сервера из программы server.py: ')
-    try:
-        client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_sock.connect((IP, 8007))
-        client_sock.close()
-        print('Соединение установлено')
-        break
-    except ConnectionRefusedError:
-        print('Неверный IP, введите снова!')
-    except TimeoutError:
-        print('Неверный IP, введите снова!')
-    except socket.gaierror:
-        print('Неверный IP, введите снова!')
+
+IP = '192.168.1.6'
 
 
 def casual_game():

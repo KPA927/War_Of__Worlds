@@ -467,7 +467,7 @@ def update():
                     click_1(data[0], data[1])
                 if data[2] == 2:
                     click_2(data[0], data[1])
-            else:
+            elif data != 'Test':
                 planets = data[0]
                 lines = data[1]
                 second_player = 0
@@ -480,7 +480,10 @@ def update():
                 j.massupdate()
                 j.grow()
             counter += 1
-            client_sock.send(pickle.dumps([planets, lines, second_player], 2))
+            if data != 'Test':
+                client_sock.send(pickle.dumps([planets, lines, second_player], 2))
+            else:
+                client_sock.send(pickle.dumps('Successful connection', 2))
             second_player = 0
         client_sock.close()
 
