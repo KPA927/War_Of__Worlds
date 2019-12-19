@@ -459,7 +459,6 @@ def update():
                 second_player = 1
         except NameError:
             pass
-        print(client_addr)
         rem_client_addr = client_addr
         while True:
             """Эта функия отвечает за обновление экрана"""
