@@ -12,9 +12,9 @@ import time
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--ip", help="input server ip")
-args = parser.parse_args
-IP = args
+parser.add_argument('-ip', required=True)
+args = parser.parse_args()
+IP = args.ip
 all_things = 1
 
 

@@ -8,12 +8,12 @@ import time
 import socket
 import pickle
 import sys
-import oc
+import os
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--play", help="input server ip")
-args = parser.parse_args
+parser.add_argument('-play', required=False)
+args = parser.parse_args()
 
 
 lines = []
@@ -495,10 +495,11 @@ def update():
             second_player = 0
         client_sock.close()
 
-if args == 'Player1':
-    os.system('python Player1.py -ip' + IP)
-    os.system('python3 Player1.py -ip' + IP)
-elif args == 'Player2':
-    os.system('python Player2.py -ip' + IP)
-    os.system('python3 Player2.py -ip' + IP)
+
+if args.play == 'Player1':
+    os.system('python Player1.py -ip localhost')
+    os.system('python3 Player1.py -ip localhost')
+elif args.play == 'Player2':
+    os.system('python Player2.py -ip localhost')
+    os.system('python3 Player2.py -ip localhost')
 update()
