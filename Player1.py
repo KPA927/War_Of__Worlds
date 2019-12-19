@@ -11,23 +11,9 @@ import sys
 import time
 
 all_things = 1
-#"Введите свой ID:
 
-#ID = '192.168.1.6'
-while True:
-    IP = input('Введите IP сервера из программы server.py: ')
-    try:
-        client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_sock.connect((IP, 8007))
-        client_sock.close()
-        print ('Соединение установлено')
-        break
-    except ConnectionRefusedError:
-        print('Неверный IP, введите снова!')
-    except TimeoutError:
-        print('Неверный IP, введите снова!')
-    except socket.gaierror:
-        print('Неверный IP, введите снова!')
+#"Введите свой ID:
+IP = '192.168.1.6'
 
 
 def casual_game():
@@ -437,7 +423,7 @@ def click(event):
 
 
 def update():
-    global all_things, counter, filename, client_sock, second_player
+    global all_things, counter, filename, client_sock, second_player, IP
     player1_planets = 0
     player2_planets = 0
     II_planets = 0
@@ -493,7 +479,7 @@ def update():
 
 
 def main(s0):
-    global planets, lines, client_sock
+    global planets, lines, client_sock, IP
     client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_sock.connect((IP, 8007))
     lines = []
