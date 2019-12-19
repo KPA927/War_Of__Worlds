@@ -475,7 +475,7 @@ def update():
         pass
     if second_player:
         root.after(20, update)
-    else:ff
+    else:
         root.after(10, update)
 
 
