@@ -11,9 +11,8 @@ import sys
 import time
 
 all_things = 1
-#"Введите свой ID:
-
-#ID = '192.168.1.6'
+IP = 'localhost'
+"""
 while True:
     IP = input('Введите IP сервера из программы server.py: ')
     try:
@@ -28,7 +27,7 @@ while True:
         print('Неверный IP, введите снова!')
     except socket.gaierror:
         print('Неверный IP, введите снова!')
-
+        """
 
 def casual_game():
     first = Toplevel()
