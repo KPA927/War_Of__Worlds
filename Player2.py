@@ -14,6 +14,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-ip', required=True)
 args = parser.parse_args()
 IP = args.ip
+all_things = 1
 
 
 def casual_game():
