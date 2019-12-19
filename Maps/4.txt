@@ -1,7 +1,7 @@
 0
-planet 	80 900 100 1 2 
-planet	30 420 100 2 2
-planet	30 1380 100 3 2
+planet 	60 900 100 3 2 
+planet	30 420 100 1 2
+planet	30 1380 100 2 2
 planet  5  180 620 0 1
 planet  5  1620 620 0 1
 planet  5  660 620 0 1
