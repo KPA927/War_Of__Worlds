@@ -8,6 +8,13 @@ import time
 import socket
 import pickle
 import sys
+import oc
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--play", help="input server ip")
+args = parser.parse_args
+
 
 lines = []
 planets = []
@@ -28,6 +35,7 @@ IP = (([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2]
       ["no IP found"])[0]
 print('IP сервера:', IP)
 print('Пожалуйста, введите IP сервера в программы клиентов.')
+
 
 def _from_rgb(rgb):
     return "#%02x%02x%02x" % rgb
@@ -487,4 +495,10 @@ def update():
             second_player = 0
         client_sock.close()
 
+if args == 'Player1':
+    os.system('python Player1.py -ip' + IP)
+    os.system('python3 Player1.py -ip' + IP)
+elif args == 'Player2':
+    os.system('python Player2.py -ip' + IP)
+    os.system('python3 Player2.py -ip' + IP)
 update()

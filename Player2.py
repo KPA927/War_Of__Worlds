@@ -8,9 +8,13 @@ import socket
 import pickle
 import sys
 import time
-all_things = 1
+import argparse
 
-IP = '192.168.1.6'
+parser = argparse.ArgumentParser()
+parser.add_argument("--ip", help="input server ip")
+args = parser.parse_args
+
+IP = args.ip
 
 
 def casual_game():
@@ -287,7 +291,6 @@ class Line:
         self.update_mass()
 
     def redraw(self):
-        #canvas.delete(self.id,)
         self.id = canvas.create_line(
             self.get_line_begin(),
             self.get_line_end(),
@@ -400,7 +403,7 @@ def click(event):
     all_things = [event.x, event.y, 2]
 
 def update():
-    global all_things, counter, filename, client_sock
+    global all_things, counter, filename, client_sock, IP
     player1_planets = 0
     player2_planets = 0
     II_planets = 0
@@ -462,7 +465,7 @@ def lets_play():
     root.title("Война миров")
     root.geometry("900x600")
     C = Canvas(root, bg="blue", height=1920, width=1080)
-    filename = PhotoImage(file="Images\\menu.png")
+    filename = PhotoImage(file="Images/menu.png")
     background_label = Label(root, image=filename)
     background_label.place(x=0, y=0, relwidth=1, relheight=1)
     C.pack()
@@ -491,7 +494,7 @@ def game():
     root.geometry('1920x1080')
     canvas = Canvas(root, bg="blue", height=1920, width=1080)
     canvas.delete("all")
-    filename = PhotoImage(file="Images\\fon.png")
+    filename = PhotoImage(file="Images/fon.png")
     canvas.create_image(960, 1080, anchor=S, image=filename)
     canvas.focus_set()
     canvas.pack(fill=tk.BOTH, expand=1)
