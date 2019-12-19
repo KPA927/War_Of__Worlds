@@ -9,11 +9,13 @@ import socket
 import pickle
 import sys
 import time
+import argparse
 
+parser = argparse.ArgumentParser()
+parser.add_argument("--ip", help="input server ip")
+args = parser.parse_args
+IP = args
 all_things = 1
-
-#"Введите свой ID:
-IP = '192.168.1.6'
 
 
 def casual_game():
@@ -429,7 +431,7 @@ def update():
     II_planets = 0
     if counter % 5 == 0:
         client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_sock.connect((IP, 8007))
+        client_sock.connect(('localhost', 8007))
         client_sock.send(pickle.dumps(all_things, 2))
         data = client_sock.recv(1000000)
         try:
@@ -481,12 +483,13 @@ def update():
 def main(s0):
     global planets, lines, client_sock, IP
     client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_sock.connect((IP, 8007))
+    client_sock.connect(('localhost', 8007))
     lines = []
     sas = 'Maps/' + s0 + '.txt'
     planets = read_space_objects_data_from_file(sas)
     data = pickle.dumps([planets, lines], 2)
     client_sock.send(data)
+    client_sock.close()
     canvas.bind('<Button-1>', click)
     update()
 
